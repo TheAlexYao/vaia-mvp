@@ -2,7 +2,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://vaiaworld.ai"
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.vaiaworld.ai"
 
 const KEYBOARD_MARKUP = {
   keyboard: [[{
@@ -10,7 +10,7 @@ const KEYBOARD_MARKUP = {
     web_app: { url: APP_URL }
   }]],
   resize_keyboard: true,
-  one_time_keyboard: true
+  one_time_keyboard: true  
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
