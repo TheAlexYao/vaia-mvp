@@ -142,47 +142,52 @@ const Chat = () => {
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
-
     setIsProcessing(true);
 
+    // Add user message immediately
     setMessages(prev => [...prev, {
       id: Date.now().toString(),
       sender: 'user',
       content: input
     }]);
 
-    // Simulate AI response with better formatted actions
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/ask-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userMessage: input })
+      });
+
+      if (!response.ok) throw new Error('AI request failed');
+      
+      const { aiResponse } = await response.json();
+
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         sender: 'vai',
-        content: "here's how to say that! notice the polite form:",
-        phrase: {
-          original: "おはようございます",
-          romanized: "ohayou gozaimasu",
-          meaning: "good morning (formal)",
-          audioUrl: "/temp.mp3"
-        },
+        content: aiResponse,
+        // Keep your existing action structure if needed
         actions: [
           { 
             label: "Practice Now",
             action: () => console.log("Practice"),
             primary: true,
           },
-          {
-            label: "Save Phrase",
-            action: () => console.log("Save"),
-          },
-          {
-            label: "Learn More",
-            action: () => console.log("Learn"),
-          }
+          // ... other actions
         ]
       }]);
-      setIsProcessing(false);
-    }, 1000);
 
-    setInput('');
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        sender: 'vai',
+        content: "Sorry, I had trouble processing that request."
+      }]);
+    } finally {
+      setIsProcessing(false);
+      setInput('');
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
