@@ -12,6 +12,7 @@ export default {
       backgroundImage: {
         'dusk': 'linear-gradient(to right, #9333ea, #2563eb)',
         'dawn': 'linear-gradient(to right, #60a5fa, #9333ea)',
+        'vai-gradient': 'linear-gradient(to right, #9333ea, #2563eb)',
       },
     },
   },

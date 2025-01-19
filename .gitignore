@@ -22,3 +22,38 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.env
+.env.local
+.env.*
+
+.DS_Store
+
+# Build artifacts
+build/
+out/
+coverage/
+
+# Package managers
+.pnpm-store/
+.npm/
+yarn.lock
+package-lock.json
+
+# IDE specific
+.settings/
+.project
+.classpath
+*.sublime-*
+.history/
+
+# OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.env

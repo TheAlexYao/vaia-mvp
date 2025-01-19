@@ -1,15 +1,31 @@
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from "openai"
 
-const configuration = new Configuration({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY
-});
-const openai = new OpenAIApi(configuration);
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
-export async function callGpt4o(messages: Array<{ role: string; content: string }>) {
-  const response = await openai.createChatCompletion({
+export async function createAssistant(name: string, instructions: string) {
+  return await openai.beta.assistants.create({
+    name,
+    instructions,
     model: "gpt-4o",
-    messages,
-    temperature: 0.7
   });
-  return response.data.choices[0].message?.content;
+}
+
+export async function createThread() {
+  return await openai.beta.threads.create();
+}
+
+export async function createMessage(threadId: string, content: string) {
+  return await openai.beta.threads.messages.create(threadId, {
+    role: "user",
+    content,
+  });
+}
+
+export async function runAssistant(threadId: string, assistantId: string) {
+  const run = await openai.beta.threads.runs.create(threadId, {
+    assistant_id: assistantId,
+  });
+  return run;
 }

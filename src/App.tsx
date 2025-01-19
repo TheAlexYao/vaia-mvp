@@ -1,7 +1,7 @@
-import { BrandTest } from './components/brand-test'
+import Chat from './pages/chat'
 
 function App() {
-  return <BrandTest />
+  return <Chat />
 }
 
 export default App
