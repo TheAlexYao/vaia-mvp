@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useRef, useEffect } from 'react';
 import { Camera, Play, Send, Globe } from 'lucide-react';
 import { Card } from "../components/ui/card"
@@ -25,6 +26,7 @@ interface Message {
     action: () => void;
     primary?: boolean;
   }[];
+  language?: string;
 }
 
 const Chat = () => {
@@ -43,6 +45,12 @@ const Chat = () => {
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [threadId, setThreadId] = useState<string | null>(
+    typeof window !== 'undefined' 
+      ? localStorage.getItem('vaiaThreadId') 
+      : null
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -69,20 +77,77 @@ const Chat = () => {
 
   const Message = ({ message }: { message: Message }) => {
     const isVai = message.sender === 'vai';
-    // @ts-ignore
     const [isPlaying, setIsPlaying] = useState(false);
 
+    const playTTS = async (text: string, language: string) => {
+      try {
+        setIsPlaying(true);
+        const response = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, language })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`TTS failed: ${response.status}`);
+        }
+        
+        const { audioBase64, contentType } = await response.json();
+        if (!audioBase64) {
+          throw new Error('No audio data received');
+        }
+
+        const binaryString = window.atob(audioBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const blob = new Blob([bytes], { type: contentType });
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        
+        audio.onended = () => {
+          setIsPlaying(false);
+          URL.revokeObjectURL(url);
+        };
+        
+        await audio.play();
+      } catch (error) {
+        console.error('TTS error:', error);
+        setIsPlaying(false);
+      }
+    };
+
+    const TTSButton = ({ text, language }: { text: string, language: string }) => (
+      <Button 
+        variant="ghost" 
+        size="sm"
+        className={`ml-2 rounded-full ${
+          isVai ? 'text-white hover:bg-white/10' : 'text-indigo-700 hover:bg-indigo-50'
+        }`}
+        onClick={() => playTTS(text, language)}
+        disabled={isPlaying}
+      >
+        {isPlaying ? (
+          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <Play className="w-4 h-4" />
+        )}
+      </Button>
+    );
+
     return (
-      <div className={`flex ${isVai ? 'justify-start' : 'justify-end'} mb-4`}>
+      <div className={`flex ${isVai ? 'justify-start' : 'justify-end'} mb-2`}>
         {isVai && (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-700 to-purple-600 mr-2 flex-shrink-0" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-purple-500 mr-2 flex-shrink-0" />
         )}
         <div className={`max-w-[80%] ${isVai ? 'mr-12' : 'ml-12'}`}>
           <Card className={`${
             isVai 
-              ? 'bg-gradient-to-br from-indigo-700 to-purple-600 text-white shadow-lg' 
+              ? 'bg-gradient-to-br from-indigo-600 to-purple-500 text-white shadow-lg' 
               : 'bg-white border-indigo-100 shadow'
-          } p-4 rounded-2xl ${isVai ? 'rounded-tl-none' : 'rounded-tr-none'}`}>
+          } p-5 rounded-2xl ${isVai ? 'rounded-tl-none' : 'rounded-tr-none'}`}>
             {message.image && (
               <div className="mb-3">
                 <img 
@@ -93,20 +158,23 @@ const Chat = () => {
               </div>
             )}
 
-            <p className={`text-sm ${!isVai && 'text-gray-700'}`}>{message.content}</p>
+            {(!message.phrase || message.content !== message.phrase.meaning) && (
+              <div className="flex items-center justify-between">
+                <p className={`text-sm ${!isVai && 'text-gray-700'}`}>
+                  {message.content}
+                </p>
+                {isVai && message.language && !message.phrase && (
+                  <TTSButton text={message.content} language={message.language} />
+                )}
+              </div>
+            )}
 
             {message.phrase && (
-              <div className="mt-4 space-y-2 border-t border-white/10 pt-3">
+              <div className={`${message.content !== message.phrase.meaning ? 'mt-4' : ''} space-y-1.5`}>
                 <div className="flex items-center justify-between">
-                  <p className="font-bold text-lg">{message.phrase.original}</p>
-                  {message.phrase.audioUrl && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className={`rounded-full ${isVai ? 'text-white hover:bg-white/10' : 'text-indigo-700 hover:bg-indigo-50'}`}
-                    >
-                      <Play className="w-4 h-4" />
-                    </Button>
+                  <p className="font-bold text-lg leading-tight">{message.phrase.original}</p>
+                  {message.language && (
+                    <TTSButton text={message.phrase.original} language={message.language} />
                   )}
                 </div>
                 <p className="text-sm opacity-90">{message.phrase.romanized}</p>
@@ -114,9 +182,9 @@ const Chat = () => {
               </div>
             )}
 
-            {message.actions && message.actions.length > 0 && (
+            {(message.actions?.length ?? 0) > 0 && (
               <div className="flex gap-2 mt-4 flex-wrap pt-2 border-t border-white/10">
-                {message.actions.map((action, i) => (
+                {message.actions!.map((action, i) => (
                   <QuickAction key={i} {...action} />
                 ))}
               </div>
@@ -140,40 +208,67 @@ const Chat = () => {
     </div>
   );
 
+  const cleanAIText = (text: string, hasPhrase: boolean) => {
+    if (!hasPhrase) return text;
+    return text
+      .replace(/(?:In|In Thai|In Japanese|In Korean):\s*[^\n]+\n?/g, '')
+      .replace(/(?:Romanized|Pronunciation):\s*[^\n]+\n?/g, '')
+      .replace(/(?:Meaning|Translation|Literally):\s*[^\n]+\n?/g, '')
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
+    
     setIsProcessing(true);
+    const userMessage = input.trim();
 
-    // Add user message immediately
     setMessages(prev => [...prev, {
       id: Date.now().toString(),
       sender: 'user',
-      content: input
+      content: userMessage
     }]);
 
     try {
       const response = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userMessage: input })
+        body: JSON.stringify({ userMessage, threadId })
       });
 
-      if (!response.ok) throw new Error('AI request failed');
-      
-      const { aiResponse } = await response.json();
+      const { aiText, phraseObj, threadId: newThreadId } = await response.json();
+
+      if (newThreadId && !threadId) {
+        setThreadId(newThreadId);
+        localStorage.setItem('vaiaThreadId', newThreadId);
+      }
 
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         sender: 'vai',
-        content: aiResponse,
-        // Keep your existing action structure if needed
+        content: cleanAIText(
+          aiText
+            .replace(/\*\*/g, '')
+            .replace(/_/g, '')
+            .replace(/`/g, '')
+            .trim(),
+          !!phraseObj
+        ),
+        ...(phraseObj && {
+          phrase: {
+            original: phraseObj.phrase.original,
+            romanized: phraseObj.phrase.romanized,
+            meaning: phraseObj.phrase.meaning
+          },
+          language: phraseObj.languageCode
+        }),
         actions: [
           { 
             label: "Practice Now",
             action: () => console.log("Practice"),
             primary: true,
-          },
-          // ... other actions
+          }
         ]
       }]);
 
