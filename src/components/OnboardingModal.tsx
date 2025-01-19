@@ -3,12 +3,14 @@ import { countryToLanguages } from '../lib/countryToLanguages';
 import { azureVoiceMap } from '../lib/azureVoiceMap';
 
 interface OnboardingModalProps {
-  onComplete: (langCode: string) => void;
+  onComplete: (config: { langCode: string; city: string }) => void;
 }
 
 export function OnboardingModal({ onComplete }: OnboardingModalProps) {
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedLang, setSelectedLang] = useState<string>('');
+  const [cityInput, setCityInput] = useState('');
+  const [step, setStep] = useState<'language' | 'city'>('language');
   const [searchQuery, setSearchQuery] = useState('');
 
   const countries = Object.keys(countryToLanguages).sort();
@@ -28,7 +30,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
     const langs = countryToLanguages[country];
     
     if (langs?.length === 1) {
-      onComplete(langs[0]);
+      onComplete({ langCode: langs[0], city: '' });
     } else {
       setSelectedLang('');
     }
@@ -38,11 +40,54 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
     setSelectedLang(lang);
   };
 
-  const handleConfirm = () => {
-    if (selectedLang) {
-      onComplete(selectedLang);
+  const handleLanguageConfirm = () => {
+    if (selectedCountry === 'other' || selectedLang) {
+      setStep('city');
     }
   };
+
+  const handleCityConfirm = () => {
+    if (cityInput.trim()) {
+      onComplete({ 
+        langCode: selectedLang || countryToLanguages[selectedCountry][0], 
+        city: cityInput.trim() 
+      });
+    }
+  };
+
+  if (step === 'city') {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <h2 className="text-xl font-bold mb-4">Where are you headed?</h2>
+          
+          <input
+            type="text"
+            placeholder="e.g. Tokyo, Japan"
+            value={cityInput}
+            onChange={(e) => setCityInput(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setStep('language')}
+              className="flex-1 bg-gray-100 text-gray-700 p-2 rounded hover:bg-gray-200"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleCityConfirm}
+              disabled={!cityInput.trim()}
+              className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-300"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (selectedCountry === 'other') {
     return (
@@ -62,7 +107,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
             {filteredLanguages.map(([code, data]) => (
               <button
                 key={code}
-                onClick={() => onComplete(code)}
+                onClick={() => onComplete({ langCode: code, city: '' })}
                 className="w-full text-left p-2 hover:bg-gray-100 rounded flex justify-between items-center"
               >
                 <span>{data.displayName}</span>
@@ -121,11 +166,11 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
         {selectedCountry && countryToLanguages[selectedCountry]?.length > 1 && (
           <button
-            onClick={handleConfirm}
+            onClick={handleLanguageConfirm}
             disabled={!selectedLang}
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-300"
           >
-            Confirm Selection
+            Continue
           </button>
         )}
       </div>

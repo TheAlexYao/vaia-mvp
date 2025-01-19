@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { OnboardingModal } from '../components/OnboardingModal';
 import { azureVoiceMap } from '../lib/azureVoiceMap';
+import { CityModal } from '../components/CityModal';
 
 interface Phrase {
   original: string;
@@ -56,11 +57,14 @@ const Chat = () => {
 
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [currentLangCode, setCurrentLangCode] = useState<string | null>(null);
+  const [showCityModal, setShowCityModal] = useState(false);
 
   useEffect(() => {
     const savedLang = localStorage.getItem('vaiaLangCode');
+    const savedCity = localStorage.getItem('vaiaCity');
     if (savedLang) {
       setCurrentLangCode(savedLang);
+      setCurrentLocation(savedCity || '');
       setShowOnboarding(false);
     }
   }, []);
@@ -208,24 +212,46 @@ const Chat = () => {
     );
   };
 
-  const StatusBar = () => (
-    <div className="py-2 px-4 bg-white border-b">
-      <div className="max-w-2xl mx-auto flex items-center justify-between text-sm">
-        <div className="flex items-center gap-2 text-indigo-700">
-          <Globe className="w-4 h-4" />
-          <button 
-            onClick={() => setShowOnboarding(true)} 
-            className="hover:text-indigo-800 flex items-center gap-2"
-          >
-            <span>{currentLangCode ? azureVoiceMap[currentLangCode]?.displayName : 'Select Language'}</span>
-            <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full">Change</span>
-          </button>
-          <span className="text-gray-300">|</span>
-          <span className="text-gray-600">{currentLocation}</span>
+  const StatusBar = () => {
+    const handleCityChange = (newCity: string) => {
+      localStorage.setItem('vaiaCity', newCity);
+      setCurrentLocation(newCity);
+      setShowCityModal(false);
+    };
+
+    return (
+      <>
+        <div className="py-2 px-4 bg-white border-b">
+          <div className="max-w-2xl mx-auto flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2 text-indigo-700">
+              <Globe className="w-4 h-4" />
+              <button 
+                onClick={() => setShowOnboarding(true)} 
+                className="hover:text-indigo-800 flex items-center gap-2"
+              >
+                <span>{currentLangCode ? azureVoiceMap[currentLangCode]?.displayName : 'Select Language'}</span>
+                <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full">Change</span>
+              </button>
+              <span className="text-gray-300">|</span>
+              <button 
+                onClick={() => setShowCityModal(true)}
+                className="hover:text-indigo-800 flex items-center gap-2"
+              >
+                <span className="text-gray-600">{currentLocation || 'Select City'}</span>
+                <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full">Change</span>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
+        {showCityModal && (
+          <CityModal 
+            onComplete={handleCityChange}
+            onClose={() => setShowCityModal(false)}
+          />
+        )}
+      </>
+    );
+  };
 
   const cleanAIText = (text: string, hasPhrase: boolean) => {
     if (!hasPhrase) return text;
@@ -237,23 +263,28 @@ const Chat = () => {
       .trim();
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isProcessing) return;
-    
+  const handleSend = async (userMessage: string) => {
     setIsProcessing(true);
-    const userMessage = input.trim();
-
-    setMessages(prev => [...prev, {
+    setInput('');
+    
+    const newMessage: Message = {
       id: Date.now().toString(),
-      sender: 'user',
+      sender: 'user' as const,
       content: userMessage
-    }]);
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
 
     try {
       const response = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userMessage, threadId })
+        body: JSON.stringify({ 
+          userMessage, 
+          threadId,
+          langCode: currentLangCode,
+          city: currentLocation 
+        })
       });
 
       const { aiText, phraseObj, threadId: newThreadId } = await response.json();
@@ -300,7 +331,6 @@ const Chat = () => {
       }]);
     } finally {
       setIsProcessing(false);
-      setInput('');
     }
   };
 
@@ -352,9 +382,11 @@ const Chat = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleLanguageSelect = (langCode: string) => {
+  const handleLanguageSelect = ({ langCode, city }: { langCode: string; city: string }) => {
     localStorage.setItem('vaiaLangCode', langCode);
+    localStorage.setItem('vaiaCity', city);
     setCurrentLangCode(langCode);
+    setCurrentLocation(city);
     setShowOnboarding(false);
   };
 
@@ -399,14 +431,14 @@ const Chat = () => {
             className="flex-1 rounded-full px-4 py-2 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-700/20 border border-gray-100"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            onKeyPress={(e) => e.key === 'Enter' && handleSend(input)}
           />
 
           {input ? (
             <Button 
               size="icon"
               className="rounded-full bg-indigo-700 hover:bg-indigo-800"
-              onClick={handleSend}
+              onClick={() => handleSend(input)}
               disabled={isProcessing}
             >
               <Send className="w-4 h-4" />

@@ -13,14 +13,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const { userMessage, threadId, langCode, city } = req.body;
+    
+    if (!userMessage || !langCode || !city) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
     if (!assistantId) {
       const assistant = await openai.beta.assistants.create({
         name: "VAIA Travel Buddy",
-        instructions: `You are VAIA, a travel and language companion. For each response:
+        instructions: `You are VAIA, a travel and language companion for someone in ${city} using ${langCode}. For each response:
 
 1. Provide a brief human-readable answer (with emojis)
-
-2. ONLY if the user asks for a translation or language phrase, append this JSON in triple backticks:
+2. Include location-specific cultural context for ${city} when relevant
+3. ONLY if the user asks for a translation or language phrase, append this JSON in triple backticks:
 \`\`\`json
 {
   "phrase": {
@@ -28,22 +34,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     "romanized": "string",
     "meaning": "string"
   },
-  "languageCode": "string",
-  "culturalTip": "string"
+  "languageCode": "${langCode}",
+  "culturalTip": "string (specific to ${city})"
 }
 \`\`\`
 
-3. If the user did NOT request a translation/phrase, do not output any JSON
-4. Never use triple backticks elsewhere in your response
-5. Keep cultural tips relevant and concise`,
+4. If the user did NOT request a translation/phrase, do not output any JSON
+5. Never use triple backticks elsewhere in your response
+6. Keep cultural tips relevant to ${city} and concise`,
         model: "gpt-4o"
       })
       assistantId = assistant.id
-    }
-
-    const { userMessage, threadId } = req.body
-    if (!userMessage) {
-      return res.status(400).json({ error: "Missing userMessage" })
     }
 
     const currentThread = threadId 
