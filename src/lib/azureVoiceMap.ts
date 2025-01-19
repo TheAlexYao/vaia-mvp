@@ -1,7 +1,7 @@
 // file: azureVoices.ts
 
 export interface AzureVoiceOption {
-    name: string;     // e.g. "af-ZA-AdriNeural3"
+    name: string;     // e.g. "af-ZA-AdriNeural"
     gender: "Male" | "Female" | "Neutral";
   }
   
@@ -15,15 +15,15 @@ export interface AzureVoiceOption {
     "af-ZA": {
       displayName: "Afrikaans (South Africa)",
       voices: [
-        { name: "af-ZA-AdriNeural3", gender: "Female" },
-        { name: "af-ZA-WillemNeural3", gender: "Male" },
+        { name: "af-ZA-AdriNeural", gender: "Female" },
+        { name: "af-ZA-WillemNeural", gender: "Male" },
       ]
     },
     "am-ET": {
       displayName: "Amharic (Ethiopia)", 
       voices: [
-        { name: "am-ET-MekdesNeural3", gender: "Female" },
-        { name: "am-ET-AmehaNeural3", gender: "Male" },
+        { name: "am-ET-MekdesNeural", gender: "Female" },
+        { name: "am-ET-AmehaNeural", gender: "Male" },
       ]
     },
     "ar-AE": {
@@ -141,15 +141,15 @@ export interface AzureVoiceOption {
     "as-IN": {
       displayName: "Assamese (India)",
       voices: [
-        { name: "as-IN-YashicaNeural3", gender: "Female" },
-        { name: "as-IN-PriyomNeural3", gender: "Male" },
+        { name: "as-IN-YashicaNeural", gender: "Female" },
+        { name: "as-IN-PriyomNeural", gender: "Male" },
       ]
     },
     "az-AZ": {
       displayName: "Azerbaijani (Latin, Azerbaijan)",
       voices: [
-        { name: "az-AZ-BanuNeural3", gender: "Female" },
-        { name: "az-AZ-BabekNeural3", gender: "Male" },
+        { name: "az-AZ-BanuNeural", gender: "Female" },
+        { name: "az-AZ-BabekNeural", gender: "Male" },
       ]
     },
     "bg-BG": {
@@ -162,22 +162,22 @@ export interface AzureVoiceOption {
     "bn-BD": {
       displayName: "Bangla (Bangladesh)",
       voices: [
-        { name: "bn-BD-NabanitaNeural3", gender: "Female" },
-        { name: "bn-BD-PradeepNeural3", gender: "Male" },
+        { name: "bn-BD-NabanitaNeural", gender: "Female" },
+        { name: "bn-BD-PradeepNeural", gender: "Male" },
       ]
     },
     "bn-IN": {
       displayName: "Bengali (India)",
       voices: [
-        { name: "bn-IN-TanishaaNeural3", gender: "Female" },
-        { name: "bn-IN-BashkarNeural3", gender: "Male" },
+        { name: "bn-IN-TanishaaNeural", gender: "Female" },
+        { name: "bn-IN-BashkarNeural", gender: "Male" },
       ]
     },
     "bs-BA": {
       displayName: "Bosnian (Bosnia and Herzegovina)",
       voices: [
-        { name: "bs-BA-VesnaNeural3", gender: "Female" },
-        { name: "bs-BA-GoranNeural3", gender: "Male" },
+        { name: "bs-BA-VesnaNeural", gender: "Female" },
+        { name: "bs-BA-GoranNeural", gender: "Male" },
       ]
     },
     "ca-ES": {
@@ -198,8 +198,8 @@ export interface AzureVoiceOption {
     "cy-GB": {
       displayName: "Welsh (United Kingdom)",
       voices: [
-        { name: "cy-GB-NiaNeural3", gender: "Female" },
-        { name: "cy-GB-AledNeural3", gender: "Male" },
+        { name: "cy-GB-NiaNeural", gender: "Female" },
+        { name: "cy-GB-AledNeural", gender: "Male" },
       ]
     },
     "da-DK": {
@@ -228,8 +228,8 @@ export interface AzureVoiceOption {
       voices: [
         { name: "de-DE-KatjaNeural", gender: "Female" },
         { name: "de-DE-ConradNeural", gender: "Male" },
-        { name: "de-DE-SeraphinaMultilingualNeural4", gender: "Female" },
-        { name: "de-DE-FlorianMultilingualNeural4", gender: "Male" },
+        { name: "de-DE-SeraphinaMultilingualNeural", gender: "Female" },
+        { name: "de-DE-FlorianMultilingualNeural", gender: "Male" },
         { name: "de-DE-AmalaNeural", gender: "Female" },
         { name: "de-DE-BerndNeural", gender: "Male" },
         { name: "de-DE-ChristophNeural", gender: "Male" },
@@ -243,7 +243,7 @@ export interface AzureVoiceOption {
         { name: "de-DE-MajaNeural", gender: "Female" },
         { name: "de-DE-RalfNeural", gender: "Male" },
         { name: "de-DE-TanjaNeural", gender: "Female" },
-        { name: "de-DE-Seraphina:DragonHDLatestNeural1", gender: "Female" },
+        { name: "de-DE-Seraphina:DragonHDLatestNeural", gender: "Female" },
       ]
     },
     "el-GR": {
@@ -285,8 +285,8 @@ export interface AzureVoiceOption {
         { name: "en-GB-SoniaNeural", gender: "Female" },
         { name: "en-GB-RyanNeural", gender: "Male" },
         { name: "en-GB-LibbyNeural", gender: "Female" },
-        { name: "en-GB-AdaMultilingualNeural4", gender: "Female" },
-        { name: "en-GB-OllieMultilingualNeural4", gender: "Male" },
+        { name: "en-GB-AdaMultilingualNeural", gender: "Female" },
+        { name: "en-GB-OllieMultilingualNeural", gender: "Male" },
         { name: "en-GB-AbbiNeural", gender: "Female" },
         { name: "en-GB-AlfieNeural", gender: "Male" },
         { name: "en-GB-BellaNeural", gender: "Female" },
@@ -325,8 +325,8 @@ export interface AzureVoiceOption {
         { name: "en-IN-NeerjaNeural", gender: "Female" },
         { name: "en-IN-PrabhatNeural", gender: "Male" },
         { name: "en-IN-RehaanNeural", gender: "Male" },
-        { name: "en-IN-AartiNeural1", gender: "Female" },
-        { name: "en-IN-ArjunNeural1", gender: "Male" },
+        { name: "en-IN-AartiNeural", gender: "Female" },
+        { name: "en-IN-ArjunNeural", gender: "Male" },
       ]
     },
     "en-KE": {
@@ -374,10 +374,10 @@ export interface AzureVoiceOption {
     "en-US": {
       displayName: "English (United States)",
       voices: [
-        { name: "en-US-AvaMultilingualNeural4", gender: "Female" },
-        { name: "en-US-AndrewMultilingualNeural4", gender: "Male" },
-        { name: "en-US-EmmaMultilingualNeural4", gender: "Female" },
-        { name: "en-US-BrianMultilingualNeural4", gender: "Male" },
+        { name: "en-US-AvaMultilingualNeural", gender: "Female" },
+        { name: "en-US-AndrewMultilingualNeural", gender: "Male" },
+        { name: "en-US-EmmaMultilingualNeural", gender: "Female" },
+        { name: "en-US-BrianMultilingualNeural", gender: "Male" },
         { name: "en-US-AvaNeural", gender: "Female" },
         { name: "en-US-AndrewNeural", gender: "Male" },
         { name: "en-US-EmmaNeural", gender: "Female" },
@@ -393,9 +393,9 @@ export interface AzureVoiceOption {
         { name: "en-US-SaraNeural", gender: "Female" },
         { name: "en-US-TonyNeural", gender: "Male" },
         { name: "en-US-NancyNeural", gender: "Female" },
-        { name: "en-US-CoraMultilingualNeural4", gender: "Female" },
-        { name: "en-US-ChristopherMultilingualNeural4", gender: "Male" },
-        { name: "en-US-BrandonMultilingualNeural4", gender: "Male" },
+        { name: "en-US-CoraMultilingualNeural", gender: "Female" },
+        { name: "en-US-ChristopherMultilingualNeural", gender: "Male" },
+        { name: "en-US-BrandonMultilingualNeural", gender: "Male" },
         { name: "en-US-AmberNeural", gender: "Female" },
         { name: "en-US-AnaNeural", gender: "Female" },
         { name: "en-US-AshleyNeural", gender: "Female" },
@@ -405,44 +405,38 @@ export interface AzureVoiceOption {
         { name: "en-US-ElizabethNeural", gender: "Female" },
         { name: "en-US-EricNeural", gender: "Male" },
         { name: "en-US-JacobNeural", gender: "Male" },
-        { name: "en-US-JennyMultilingualNeural4", gender: "Female" },
+        { name: "en-US-JennyMultilingualNeural", gender: "Female" },
         { name: "en-US-MichelleNeural", gender: "Female" },
         { name: "en-US-MonicaNeural", gender: "Female" },
         { name: "en-US-RogerNeural", gender: "Male" },
-        { name: "en-US-RyanMultilingualNeural4", gender: "Male" },
+        { name: "en-US-RyanMultilingualNeural", gender: "Male" },
         { name: "en-US-SteffanNeural", gender: "Male" },
-        { name: "en-US-AdamMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-AIGenerate1Neural1", gender: "Male" },
-        { name: "en-US-AIGenerate2Neural1", gender: "Female" },
-        { name: "en-US-AlloyTurboMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-AmandaMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-BlueNeural1", gender: "Neutral" },
-        { name: "en-US-DavisMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-DerekMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-DustinMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-EchoTurboMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-EvelynMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-FableTurboMultilingualNeural1,4", gender: "Neutral" },
-        { name: "en-US-LewisMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-LolaMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-NancyMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-NovaTurboMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-OnyxTurboMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-PhoebeMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-SamuelMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-SerenaMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-ShimmerTurboMultilingualNeural1,4", gender: "Female" },
-        { name: "en-US-SteffanMultilingualNeural1,4", gender: "Male" },
-        { name: "en-US-Andrew:DragonHDLatestNeural1", gender: "Male" },
-        { name: "en-US-Andrew2:DragonHDLatestNeural1", gender: "Male" },
-        { name: "en-US-Aria:DragonHDLatestNeural1", gender: "Female" },
-        { name: "en-US-Ava:DragonHDLatestNeural1", gender: "Female" },
-        { name: "en-US-Brian:DragonHDLatestNeural1", gender: "Male" },
-        { name: "en-US-Davis:DragonHDLatestNeural1", gender: "Male" },
-        { name: "en-US-Emma:DragonHDLatestNeural1", gender: "Female" },
-        { name: "en-US-Emma2:DragonHDLatestNeural1", gender: "Female" },
-        { name: "en-US-Jenny:DragonHDLatestNeural1", gender: "Female" },
-        { name: "en-US-Steffan:DragonHDLatestNeural1", gender: "Male" },
+        { name: "en-US-AdamMultilingualNeural", gender: "Male" },
+        { name: "en-US-AlloyTurboMultilingualNeural", gender: "Male" },
+        { name: "en-US-AmandaMultilingualNeural", gender: "Female" },
+        { name: "en-US-BlueNeural", gender: "Neutral" },
+        { name: "en-US-DavisMultilingualNeural", gender: "Male" },
+        { name: "en-US-DerekMultilingualNeural", gender: "Male" },
+        { name: "en-US-DustinMultilingualNeural", gender: "Male" },
+        { name: "en-US-EchoTurboMultilingualNeural", gender: "Male" },
+        { name: "en-US-EvelynMultilingualNeural", gender: "Female" },
+        { name: "en-US-FableTurboMultilingualNeural", gender: "Neutral" },
+        { name: "en-US-LewisMultilingualNeural", gender: "Male" },
+        { name: "en-US-LolaMultilingualNeural", gender: "Female" },
+        { name: "en-US-NancyMultilingualNeural", gender: "Female" },
+        { name: "en-US-NovaTurboMultilingualNeural", gender: "Female" },
+        { name: "en-US-OnyxTurboMultilingualNeural", gender: "Male" },
+        { name: "en-US-PhoebeMultilingualNeural", gender: "Female" },
+        { name: "en-US-SamuelMultilingualNeural", gender: "Male" },
+        { name: "en-US-SerenaMultilingualNeural", gender: "Female" },
+        { name: "en-US-ShimmerTurboMultilingualNeural", gender: "Female" },
+        { name: "en-US-SteffanMultilingualNeural", gender: "Male" },
+        { name: "en-US-Aria:DragonHDLatestNeural", gender: "Female" },
+        { name: "en-US-Ava:DragonHDLatestNeural", gender: "Female" },
+        { name: "en-US-Brian:DragonHDLatestNeural", gender: "Male" },
+        { name: "en-US-Davis:DragonHDLatestNeural", gender: "Male" },
+        { name: "en-US-Jenny:DragonHDLatestNeural", gender: "Female" },
+        { name: "en-US-Steffan:DragonHDLatestNeural", gender: "Male" },
       ]
     },
     "en-ZA": {
@@ -513,10 +507,10 @@ export interface AzureVoiceOption {
       voices: [
         { name: "es-ES-ElviraNeural", gender: "Female" },
         { name: "es-ES-AlvaroNeural", gender: "Male" },
-        { name: "es-ES-ArabellaMultilingualNeural4", gender: "Female" },
-        { name: "es-ES-IsidoraMultilingualNeural4", gender: "Female" },
-        { name: "es-ES-TristanMultilingualNeural4", gender: "Male" },
-        { name: "es-ES-XimenaMultilingualNeural4", gender: "Female" },
+        { name: "es-ES-ArabellaMultilingualNeural", gender: "Female" },
+        { name: "es-ES-IsidoraMultilingualNeural", gender: "Female" },
+        { name: "es-ES-TristanMultilingualNeural", gender: "Male" },
+        { name: "es-ES-XimenaMultilingualNeural", gender: "Female" },
         { name: "es-ES-AbrilNeural", gender: "Female" },
         { name: "es-ES-ArnauNeural", gender: "Male" },
         { name: "es-ES-DarioNeural", gender: "Male" },
@@ -640,22 +634,22 @@ export interface AzureVoiceOption {
     "et-EE": {
       displayName: "Estonian (Estonia)",
       voices: [
-        { name: "et-EE-AnuNeural3", gender: "Female" },
-        { name: "et-EE-KertNeural3", gender: "Male" },
+        { name: "et-EE-AnuNeural", gender: "Female" },
+        { name: "et-EE-KertNeural", gender: "Male" },
       ]
     },
     "eu-ES": {
       displayName: "Basque",
       voices: [
-        { name: "eu-ES-AinhoaNeural3", gender: "Female" },
-        { name: "eu-ES-AnderNeural3", gender: "Male" },
+        { name: "eu-ES-AinhoaNeural", gender: "Female" },
+        { name: "eu-ES-AnderNeural", gender: "Male" },
       ]
     },
     "fa-IR": {
       displayName: "Persian (Iran)",
       voices: [
-        { name: "fa-IR-DilaraNeural3", gender: "Female" },
-        { name: "fa-IR-FaridNeural3", gender: "Male" },
+        { name: "fa-IR-DilaraNeural", gender: "Female" },
+        { name: "fa-IR-FaridNeural", gender: "Male" },
       ]
     },
     "fi-FI": {
@@ -669,8 +663,8 @@ export interface AzureVoiceOption {
     "fil-PH": {
       displayName: "Filipino (Philippines)",
       voices: [
-        { name: "fil-PH-BlessicaNeural3", gender: "Female" },
-        { name: "fil-PH-AngeloNeural3", gender: "Male" },
+        { name: "fil-PH-BlessicaNeural", gender: "Female" },
+        { name: "fil-PH-AngeloNeural", gender: "Male" },
       ]
     },
     "fr-BE": {
@@ -701,9 +695,9 @@ export interface AzureVoiceOption {
       voices: [
         { name: "fr-FR-DeniseNeural", gender: "Female" },
         { name: "fr-FR-HenriNeural", gender: "Male" },
-        { name: "fr-FR-VivienneMultilingualNeural4", gender: "Female" },
-        { name: "fr-FR-RemyMultilingualNeural4", gender: "Male" },
-        { name: "fr-FR-LucienMultilingualNeural4", gender: "Male" },
+        { name: "fr-FR-VivienneMultilingualNeural", gender: "Female" },
+        { name: "fr-FR-RemyMultilingualNeural", gender: "Male" },
+        { name: "fr-FR-LucienMultilingualNeural", gender: "Male" },
         { name: "fr-FR-AlainNeural", gender: "Male" },
         { name: "fr-FR-BrigitteNeural", gender: "Female" },
         { name: "fr-FR-CelesteNeural", gender: "Female" },
@@ -721,15 +715,15 @@ export interface AzureVoiceOption {
     "ga-IE": {
       displayName: "Irish (Ireland)",
       voices: [
-        { name: "ga-IE-OrlaNeural3", gender: "Female" },
-        { name: "ga-IE-ColmNeural3", gender: "Male" },
+        { name: "ga-IE-OrlaNeural", gender: "Female" },
+        { name: "ga-IE-ColmNeural", gender: "Male" },
       ]
     },
     "gl-ES": {
       displayName: "Galician (Spain)",
       voices: [
-        { name: "gl-ES-SabelaNeural3", gender: "Female" },
-        { name: "gl-ES-RoiNeural3", gender: "Male" },
+        { name: "gl-ES-SabelaNeural", gender: "Female" },
+        { name: "gl-ES-RoiNeural", gender: "Male" },
       ]
     },
     "gu-IN": {
@@ -756,8 +750,8 @@ export interface AzureVoiceOption {
         { name: "hi-IN-RehaanNeural", gender: "Male" },
         { name: "hi-IN-SwaraNeural", gender: "Female" },
         { name: "hi-IN-MadhurNeural", gender: "Male" },
-        { name: "hi-IN-AartiNeural1", gender: "Female" },
-        { name: "hi-IN-ArjunNeural1", gender: "Male" },
+        { name: "hi-IN-AartiNeural", gender: "Female" },
+        { name: "hi-IN-ArjunNeural", gender: "Male" },
       ]
     },
     "hr-HR": {
@@ -777,8 +771,8 @@ export interface AzureVoiceOption {
     "hy-AM": {
       displayName: "Armenian (Armenia)",
       voices: [
-        { name: "hy-AM-AnahitNeural3", gender: "Female" },
-        { name: "hy-AM-HaykNeural3", gender: "Male" },
+        { name: "hy-AM-AnahitNeural", gender: "Female" },
+        { name: "hy-AM-HaykNeural", gender: "Male" },
       ]
     },
     "id-ID": {
@@ -791,8 +785,8 @@ export interface AzureVoiceOption {
     "is-IS": {
       displayName: "Icelandic (Iceland)",
       voices: [
-        { name: "is-IS-GudrunNeural3", gender: "Female" },
-        { name: "is-IS-GunnarNeural3", gender: "Male" },
+        { name: "is-IS-GudrunNeural", gender: "Female" },
+        { name: "is-IS-GunnarNeural", gender: "Male" },
       ]
     },
     "it-IT": {
@@ -801,10 +795,10 @@ export interface AzureVoiceOption {
         { name: "it-IT-ElsaNeural", gender: "Female" },
         { name: "it-IT-IsabellaNeural", gender: "Female" },
         { name: "it-IT-DiegoNeural", gender: "Male" },
-        { name: "it-IT-AlessioMultilingualNeural4", gender: "Male" },
-        { name: "it-IT-IsabellaMultilingualNeural4", gender: "Female" },
-        { name: "it-IT-GiuseppeMultilingualNeural4", gender: "Male" },
-        { name: "it-IT-MarcelloMultilingualNeural4", gender: "Male" },
+        { name: "it-IT-AlessioMultilingualNeural", gender: "Male" },
+        { name: "it-IT-IsabellaMultilingualNeural", gender: "Female" },
+        { name: "it-IT-GiuseppeMultilingualNeural", gender: "Male" },
+        { name: "it-IT-MarcelloMultilingualNeural", gender: "Male" },
         { name: "it-IT-BenignoNeural", gender: "Male" },
         { name: "it-IT-CalimeroNeural", gender: "Male" },
         { name: "it-IT-CataldoNeural", gender: "Male" },
@@ -823,15 +817,15 @@ export interface AzureVoiceOption {
     "iu-CANS-CA": {
       displayName: "Inuktitut (Syllabics, Canada)",
       voices: [
-        { name: "iu-Cans-CA-SiqiniqNeural3", gender: "Female" },
-        { name: "iu-Cans-CA-TaqqiqNeural3", gender: "Male" },
+        { name: "iu-Cans-CA-SiqiniqNeural", gender: "Female" },
+        { name: "iu-Cans-CA-TaqqiqNeural", gender: "Male" },
       ]
     },
     "iu-LATN-CA": {
       displayName: "Inuktitut (Latin, Canada)",
       voices: [
-        { name: "iu-Latn-CA-SiqiniqNeural3", gender: "Female" },
-        { name: "iu-Latn-CA-TaqqiqNeural3", gender: "Male" },
+        { name: "iu-Latn-CA-SiqiniqNeural", gender: "Female" },
+        { name: "iu-Latn-CA-TaqqiqNeural", gender: "Male" },
       ]
     },
     "ja-JP": {
@@ -844,43 +838,43 @@ export interface AzureVoiceOption {
         { name: "ja-JP-MayuNeural", gender: "Female" },
         { name: "ja-JP-NaokiNeural", gender: "Male" },
         { name: "ja-JP-ShioriNeural", gender: "Female" },
-        { name: "ja-JP-MasaruMultilingualNeural1,4", gender: "Male" },
-        { name: "ja-JP-Masaru:DragonHDLatestNeural1", gender: "Male" },
+        { name: "ja-JP-MasaruMultilingualNeural", gender: "Male" },
+        { name: "ja-JP-Masaru:DragonHDLatestNeural", gender: "Male" },
       ]
     },
     "jv-ID": {
       displayName: "Javanese (Indonesia)",
       voices: [
-        { name: "jv-ID-SitiNeural3", gender: "Female" },
-        { name: "jv-ID-DimasNeural3", gender: "Male" },
+        { name: "jv-ID-SitiNeural", gender: "Female" },
+        { name: "jv-ID-DimasNeural", gender: "Male" },
       ]
     },
     "ka-GE": {
       displayName: "Georgian (Georgia)",
       voices: [
-        { name: "ka-GE-EkaNeural3", gender: "Female" },
-        { name: "ka-GE-GiorgiNeural3", gender: "Male" },
+        { name: "ka-GE-EkaNeural", gender: "Female" },
+        { name: "ka-GE-GiorgiNeural", gender: "Male" },
       ]
     },
     "kk-KZ": {
       displayName: "Kazakh (Kazakhstan)",
       voices: [
-        { name: "kk-KZ-AigulNeural3", gender: "Female" },
-        { name: "kk-KZ-DauletNeural3", gender: "Male" },
+        { name: "kk-KZ-AigulNeural", gender: "Female" },
+        { name: "kk-KZ-DauletNeural", gender: "Male" },
       ]
     },
     "km-KH": {
       displayName: "Khmer (Cambodia)",
       voices: [
-        { name: "km-KH-SreymomNeural3", gender: "Female" },
-        { name: "km-KH-PisethNeural3", gender: "Male" },
+        { name: "km-KH-SreymomNeural", gender: "Female" },
+        { name: "km-KH-PisethNeural", gender: "Male" },
       ]
     },
     "kn-IN": {
       displayName: "Kannada (India)",
       voices: [
-        { name: "kn-IN-SapnaNeural3", gender: "Female" },
-        { name: "kn-IN-GaganNeural3", gender: "Male" },
+        { name: "kn-IN-SapnaNeural", gender: "Female" },
+        { name: "kn-IN-GaganNeural", gender: "Male" },
       ]
     },
     "ko-KR": {
@@ -888,7 +882,7 @@ export interface AzureVoiceOption {
       voices: [
         { name: "ko-KR-SunHiNeural", gender: "Female" },
         { name: "ko-KR-InJoonNeural", gender: "Male" },
-        { name: "ko-KR-HyunsuMultilingualNeural4", gender: "Male" },
+        { name: "ko-KR-HyunsuMultilingualNeural", gender: "Male" },
         { name: "ko-KR-BongJinNeural", gender: "Male" },
         { name: "ko-KR-GookMinNeural", gender: "Male" },
         { name: "ko-KR-HyunsuNeural", gender: "Male" },
@@ -901,43 +895,43 @@ export interface AzureVoiceOption {
     "lo-LA": {
       displayName: "Lao (Laos)",
       voices: [
-        { name: "lo-LA-KeomanyNeural3", gender: "Female" },
-        { name: "lo-LA-ChanthavongNeural3", gender: "Male" },
+        { name: "lo-LA-KeomanyNeural", gender: "Female" },
+        { name: "lo-LA-ChanthavongNeural", gender: "Male" },
       ]
     },
     "lt-LT": {
       displayName: "Lithuanian (Lithuania)",
       voices: [
-        { name: "lt-LT-OnaNeural3", gender: "Female" },
-        { name: "lt-LT-LeonasNeural3", gender: "Male" },
+        { name: "lt-LT-OnaNeural", gender: "Female" },
+        { name: "lt-LT-LeonasNeural", gender: "Male" },
       ]
     },
     "lv-LV": {
       displayName: "Latvian (Latvia)",
       voices: [
-        { name: "lv-LV-EveritaNeural3", gender: "Female" },
-        { name: "lv-LV-NilsNeural3", gender: "Male" },
+        { name: "lv-LV-EveritaNeural", gender: "Female" },
+        { name: "lv-LV-NilsNeural", gender: "Male" },
       ]
     },
     "mk-MK": {
       displayName: "Macedonian (North Macedonia)",
       voices: [
-        { name: "mk-MK-MarijaNeural3", gender: "Female" },
-        { name: "mk-MK-AleksandarNeural3", gender: "Male" },
+        { name: "mk-MK-MarijaNeural", gender: "Female" },
+        { name: "mk-MK-AleksandarNeural", gender: "Male" },
       ]
     },
     "ml-IN": {
       displayName: "Malayalam (India)",
       voices: [
-        { name: "ml-IN-SobhanaNeural3", gender: "Female" },
-        { name: "ml-IN-MidhunNeural3", gender: "Male" },
+        { name: "ml-IN-SobhanaNeural", gender: "Female" },
+        { name: "ml-IN-MidhunNeural", gender: "Male" },
       ]
     },
     "mn-MN": {
       displayName: "Mongolian (Mongolia)",
       voices: [
-        { name: "mn-MN-YesuiNeural3", gender: "Female" },
-        { name: "mn-MN-BataaNeural3", gender: "Male" },
+        { name: "mn-MN-YesuiNeural", gender: "Female" },
+        { name: "mn-MN-BataaNeural", gender: "Male" },
       ]
     },
     "mr-IN": {
@@ -957,15 +951,15 @@ export interface AzureVoiceOption {
     "mt-MT": {
       displayName: "Maltese (Malta)",
       voices: [
-        { name: "mt-MT-GraceNeural3", gender: "Female" },
-        { name: "mt-MT-JosephNeural3", gender: "Male" },
+        { name: "mt-MT-GraceNeural", gender: "Female" },
+        { name: "mt-MT-JosephNeural", gender: "Male" },
       ]
     },
     "my-MM": {
       displayName: "Burmese (Myanmar)",
       voices: [
-        { name: "my-MM-NilarNeural3", gender: "Female" },
-        { name: "my-MM-ThihaNeural3", gender: "Male" },
+        { name: "my-MM-NilarNeural", gender: "Female" },
+        { name: "my-MM-ThihaNeural", gender: "Male" },
       ]
     },
     "nb-NO": {
@@ -979,8 +973,8 @@ export interface AzureVoiceOption {
     "ne-NP": {
       displayName: "Nepali (Nepal)",
       voices: [
-        { name: "ne-NP-HemkalaNeural3", gender: "Female" },
-        { name: "ne-NP-SagarNeural3", gender: "Male" },
+        { name: "ne-NP-HemkalaNeural", gender: "Female" },
+        { name: "ne-NP-SagarNeural", gender: "Male" },
       ]
     },
     "nl-BE": {
@@ -1001,15 +995,15 @@ export interface AzureVoiceOption {
     "or-IN": {
       displayName: "Odia (India)",
       voices: [
-        { name: "or-IN-SubhasiniNeural3", gender: "Female" },
-        { name: "or-IN-SukantNeural3", gender: "Male" },
+        { name: "or-IN-SubhasiniNeural", gender: "Female" },
+        { name: "or-IN-SukantNeural", gender: "Male" },
       ]
     },
     "pa-IN": {
       displayName: "Punjabi (India)",
       voices: [
-        { name: "pa-IN-OjasNeural3", gender: "Male" },
-        { name: "pa-IN-VaaniNeural3", gender: "Female" },
+        { name: "pa-IN-OjasNeural", gender: "Male" },
+        { name: "pa-IN-VaaniNeural", gender: "Female" },
       ]
     },
     "pl-PL": {
@@ -1023,8 +1017,8 @@ export interface AzureVoiceOption {
     "ps-AF": {
       displayName: "Pashto (Afghanistan)",
       voices: [
-        { name: "ps-AF-LatifaNeural3", gender: "Female" },
-        { name: "ps-AF-GulNawazNeural3", gender: "Male" },
+        { name: "ps-AF-LatifaNeural", gender: "Female" },
+        { name: "ps-AF-GulNawazNeural", gender: "Male" },
       ]
     },
     "pt-BR": {
@@ -1032,8 +1026,8 @@ export interface AzureVoiceOption {
       voices: [
         { name: "pt-BR-FranciscaNeural", gender: "Female" },
         { name: "pt-BR-AntonioNeural", gender: "Male" },
-        { name: "pt-BR-MacerioMultilingualNeural4", gender: "Male" },
-        { name: "pt-BR-ThalitaMultilingualNeural4", gender: "Female" },
+        { name: "pt-BR-MacerioMultilingualNeural", gender: "Male" },
+        { name: "pt-BR-ThalitaMultilingualNeural", gender: "Female" },
         { name: "pt-BR-BrendaNeural", gender: "Female" },
         { name: "pt-BR-DonatoNeural", gender: "Male" },
         { name: "pt-BR-ElzaNeural", gender: "Female" },
@@ -1076,8 +1070,8 @@ export interface AzureVoiceOption {
     "si-LK": {
       displayName: "Sinhala (Sri Lanka)",
       voices: [
-        { name: "si-LK-ThiliniNeural3", gender: "Female" },
-        { name: "si-LK-SameeraNeural3", gender: "Male" },
+        { name: "si-LK-ThiliniNeural", gender: "Female" },
+        { name: "si-LK-SameeraNeural", gender: "Male" },
       ]
     },
     "sk-SK": {
@@ -1097,36 +1091,36 @@ export interface AzureVoiceOption {
     "so-SO": {
       displayName: "Somali (Somalia)",
       voices: [
-        { name: "so-SO-UbaxNeural3", gender: "Female" },
-        { name: "so-SO-MuuseNeural3", gender: "Male" },
+        { name: "so-SO-UbaxNeural", gender: "Female" },
+        { name: "so-SO-MuuseNeural", gender: "Male" },
       ]
     },
     "sq-AL": {
       displayName: "Albanian (Albania)",
       voices: [
-        { name: "sq-AL-AnilaNeural3", gender: "Female" },
-        { name: "sq-AL-IlirNeural3", gender: "Male" },
+        { name: "sq-AL-AnilaNeural", gender: "Female" },
+        { name: "sq-AL-IlirNeural", gender: "Male" },
       ]
     },
     "sr-LATN-RS": {
       displayName: "Serbian (Latin, Serbia)",
       voices: [
-        { name: "sr-Latn-RS-NicholasNeural3", gender: "Male" },
-        { name: "sr-Latn-RS-SophieNeural3", gender: "Female" },
+        { name: "sr-Latn-RS-NicholasNeural", gender: "Male" },
+        { name: "sr-Latn-RS-SophieNeural", gender: "Female" },
       ]
     },
     "sr-RS": {
       displayName: "Serbian (Cyrillic, Serbia)",
       voices: [
-        { name: "sr-RS-SophieNeural3", gender: "Female" },
-        { name: "sr-RS-NicholasNeural3", gender: "Male" },
+        { name: "sr-RS-SophieNeural", gender: "Female" },
+        { name: "sr-RS-NicholasNeural", gender: "Male" },
       ]
     },
     "su-ID": {
       displayName: "Sundanese (Indonesia)",
       voices: [
-        { name: "su-ID-TutiNeural3", gender: "Female" },
-        { name: "su-ID-JajangNeural3", gender: "Male" },
+        { name: "su-ID-TutiNeural", gender: "Female" },
+        { name: "su-ID-JajangNeural", gender: "Male" },
       ]
     },
     "sv-SE": {
@@ -1140,8 +1134,8 @@ export interface AzureVoiceOption {
     "sw-KE": {
       displayName: "Swahili (Kenya)",
       voices: [
-        { name: "sw-KE-ZuriNeural3", gender: "Female" },
-        { name: "sw-KE-RafikiNeural3", gender: "Male" },
+        { name: "sw-KE-ZuriNeural", gender: "Female" },
+        { name: "sw-KE-RafikiNeural", gender: "Male" },
       ]
     },
     "sw-TZ": {
@@ -1225,8 +1219,8 @@ export interface AzureVoiceOption {
     "uz-UZ": {
       displayName: "Uzbek (Uzbekistan)",
       voices: [
-        { name: "uz-UZ-MadinaNeural3", gender: "Female" },
-        { name: "uz-UZ-SardorNeural3", gender: "Male" },
+        { name: "uz-UZ-MadinaNeural", gender: "Female" },
+        { name: "uz-UZ-SardorNeural", gender: "Male" },
       ]
     },
     "vi-VN": {
@@ -1239,15 +1233,15 @@ export interface AzureVoiceOption {
     "wuu-CN": {
       displayName: "Chinese (Wu, China)",
       voices: [
-        { name: "wuu-CN-XiaotongNeural3", gender: "Female" },
-        { name: "wuu-CN-YunzheNeural3", gender: "Male" },
+        { name: "wuu-CN-XiaotongNeural", gender: "Female" },
+        { name: "wuu-CN-YunzheNeural", gender: "Male" },
       ]
     },
     "yue-CN": {
       displayName: "Chinese (Cantonese, China)",
       voices: [
-        { name: "yue-CN-XiaoMinNeural3", gender: "Female" },
-        { name: "yue-CN-YunSongNeural3", gender: "Male" },
+        { name: "yue-CN-XiaoMinNeural", gender: "Female" },
+        { name: "yue-CN-YunSongNeural", gender: "Male" },
       ]
     },
     "zh-CN": {
@@ -1259,7 +1253,7 @@ export interface AzureVoiceOption {
         { name: "zh-CN-XiaoyiNeural", gender: "Female" },
         { name: "zh-CN-YunyangNeural", gender: "Male" },
         { name: "zh-CN-XiaochenNeural", gender: "Female" },
-        { name: "zh-CN-XiaochenMultilingualNeural4", gender: "Female" },
+        { name: "zh-CN-XiaochenMultilingualNeural", gender: "Female" },
         { name: "zh-CN-XiaohanNeural", gender: "Female" },
         { name: "zh-CN-XiaomengNeural", gender: "Female" },
         { name: "zh-CN-XiaomoNeural", gender: "Female" },
@@ -1267,26 +1261,26 @@ export interface AzureVoiceOption {
         { name: "zh-CN-XiaorouNeural", gender: "Female" },
         { name: "zh-CN-XiaoruiNeural", gender: "Female" },
         { name: "zh-CN-XiaoshuangNeural", gender: "Female" },
-        { name: "zh-CN-XiaoxiaoDialectsNeural6", gender: "Female" },
-        { name: "zh-CN-XiaoxiaoMultilingualNeural4", gender: "Female" },
+        { name: "zh-CN-XiaoxiaoDialectsNeural", gender: "Female" },
+        { name: "zh-CN-XiaoxiaoMultilingualNeural", gender: "Female" },
         { name: "zh-CN-XiaoyanNeural", gender: "Female" },
         { name: "zh-CN-XiaoyouNeural", gender: "Female" },
-        { name: "zh-CN-XiaoyuMultilingualNeural4", gender: "Female" },
+        { name: "zh-CN-XiaoyuMultilingualNeural", gender: "Female" },
         { name: "zh-CN-XiaozhenNeural", gender: "Female" },
         { name: "zh-CN-YunfengNeural", gender: "Male" },
         { name: "zh-CN-YunhaoNeural", gender: "Male" },
         { name: "zh-CN-YunjieNeural", gender: "Male" },
         { name: "zh-CN-YunxiaNeural", gender: "Male" },
         { name: "zh-CN-YunyeNeural", gender: "Male" },
-        { name: "zh-CN-YunyiMultilingualNeural4", gender: "Male" },
+        { name: "zh-CN-YunyiMultilingualNeural", gender: "Male" },
         { name: "zh-CN-YunzeNeural", gender: "Male" },
-        { name: "zh-CN-YunfanMultilingualNeural1,4", gender: "Male" },
-        { name: "zh-CN-YunxiaoMultilingualNeural1,4", gender: "Male" },
-        { name: "zh-CN-Xiaochen:DragonHDLatestNeural1", gender: "Female" },
+        { name: "zh-CN-YunfanMultilingualNeural", gender: "Male" },
+        { name: "zh-CN-YunxiaoMultilingualNeural", gender: "Male" },
+        { name: "zh-CN-Xiaochen:DragonHDLatestNeural", gender: "Female" },
         { name: "zh-CN-GUANGXI", gender: "Male" },
         { name: "zh-CN-henan", gender: "Male" },
         { name: "zh-CN-liaoning", gender: "Female" },
-        { name: "zh-CN-liaoning-YunbiaoNeural1,3", gender: "Male" },
+        { name: "zh-CN-liaoning-YunbiaoNeural", gender: "Male" },
         { name: "zh-CN-shaanxi", gender: "Female" },
         { name: "zh-CN-shandong", gender: "Male" },
         { name: "zh-CN-sichuan", gender: "Male" },
@@ -1311,8 +1305,8 @@ export interface AzureVoiceOption {
     "zu-ZA": {
       displayName: "Zulu (South Africa)",
       voices: [
-        { name: "zu-ZA-ThandoNeural3", gender: "Female" },
-        { name: "zu-ZA-ThembaNeural3", gender: "Male" },
+        { name: "zu-ZA-ThandoNeural", gender: "Female" },
+        { name: "zu-ZA-ThembaNeural", gender: "Male" },
       ]
     },
   };

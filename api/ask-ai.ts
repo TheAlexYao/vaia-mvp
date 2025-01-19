@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     "romanized": "string",
     "meaning": "string"
   },
-  "languageCode": "${langCode}",
+  "languageCode": "string (use BCP-47 format, e.g., 'ja-JP', 'th-TH', 'de-AT')",
   "culturalTip": "string (specific to ${city})"
 }
 \`\`\`
@@ -87,6 +87,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const aiText = fullText.replace(/```json[\s\S]*?```/g, '').trim()
+
+    // Log response structure
+    console.log('API Response Structure:', {
+      aiText: aiText.slice(0, 100) + '...', // First 100 chars
+      phraseObj: phraseObj ? {
+        languageCode: phraseObj.languageCode,
+        phrase: {
+          original: phraseObj.phrase?.original?.slice(0, 50),
+          romanized: phraseObj.phrase?.romanized?.slice(0, 50),
+          meaning: phraseObj.phrase?.meaning?.slice(0, 50)
+        }
+      } : null,
+      threadId: currentThread.id
+    });
 
     return res.status(200).json({ 
       aiText,

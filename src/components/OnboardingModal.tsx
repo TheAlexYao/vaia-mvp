@@ -10,7 +10,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedLang, setSelectedLang] = useState<string>('');
   const [cityInput, setCityInput] = useState('');
-  const [step, setStep] = useState<'language' | 'city'>('language');
+  const [step, setStep] = useState<'country' | 'language' | 'city'>('country');
   const [searchQuery, setSearchQuery] = useState('');
 
   const countries = Object.keys(countryToLanguages).sort();
@@ -30,19 +30,10 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
     const langs = countryToLanguages[country];
     
     if (langs?.length === 1) {
-      onComplete({ langCode: langs[0], city: '' });
-    } else {
-      setSelectedLang('');
-    }
-  };
-
-  const handleLanguageChange = (lang: string) => {
-    setSelectedLang(lang);
-  };
-
-  const handleLanguageConfirm = () => {
-    if (selectedCountry === 'other' || selectedLang) {
+      setSelectedLang(langs[0]);
       setStep('city');
+    } else {
+      setStep('language');
     }
   };
 
@@ -127,6 +118,39 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
     );
   }
 
+  if (step === 'language') {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <h2 className="text-xl font-bold mb-4">Select Language for {selectedCountry}</h2>
+          
+          <div className="space-y-2">
+            {countryToLanguages[selectedCountry].map(langCode => (
+              <button
+                key={langCode}
+                onClick={() => {
+                  setSelectedLang(langCode);
+                  setStep('city');
+                }}
+                className="w-full text-left p-2 hover:bg-gray-100 rounded flex justify-between items-center"
+              >
+                <span>{azureVoiceMap[langCode]?.displayName}</span>
+                <span className="text-gray-500 text-sm">{langCode}</span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setStep('country')}
+            className="w-full mt-4 bg-gray-500 text-white p-2 rounded hover:bg-gray-600"
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
@@ -146,29 +170,10 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
           ))}
         </select>
 
-        {selectedCountry && countryToLanguages[selectedCountry]?.length > 1 && (
-          <>
-            <h3 className="text-lg font-semibold mb-2">Select Language</h3>
-            <select
-              value={selectedLang}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              className="w-full p-2 border rounded mb-4"
-            >
-              <option value="">Choose a language...</option>
-              {countryToLanguages[selectedCountry].map(langCode => (
-                <option key={langCode} value={langCode}>
-                  {azureVoiceMap[langCode]?.displayName || langCode}
-                </option>
-              ))}
-            </select>
-          </>
-        )}
-
-        {selectedCountry && countryToLanguages[selectedCountry]?.length > 1 && (
+        {selectedCountry && selectedCountry !== 'other' && (
           <button
-            onClick={handleLanguageConfirm}
-            disabled={!selectedLang}
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-300"
+            onClick={() => setStep('language')}
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
           >
             Continue
           </button>

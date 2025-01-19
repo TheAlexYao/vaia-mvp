@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk'
+import { azureVoiceMap } from '../src/lib/azureVoiceMap'
 
 // Validate required environment variables
 const AZURE_TTS_KEY = process.env.AZURE_TTS_KEY
@@ -22,6 +23,15 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
 interface SynthesisError {
   error: Error;
   result?: sdk.SpeechSynthesisResult;
+}
+
+// Replace the existing voiceMap with a function that gets the first voice for a language
+const getVoiceForLanguage = (language: string): string => {
+  const voices = azureVoiceMap[language]?.voices
+  if (!voices?.length) {
+    throw new Error(`No voice found for language: ${language}`)
+  }
+  return voices[0].name
 }
 
 export default async function handler(
@@ -51,15 +61,8 @@ export default async function handler(
     speechConfig.speechSynthesisOutputFormat = 
       sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
 
-    // Select voice based on language
-    const voiceMap: Record<string, string> = {
-      'th-TH': 'th-TH-PremwadeeNeural',
-      'ja-JP': 'ja-JP-NanamiNeural',
-      // Add more language-to-voice mappings as needed
-    }
-    
-    speechConfig.speechSynthesisVoiceName = 
-      voiceMap[language] || `${language}-Neural`
+    // Update where voiceMap was used
+    speechConfig.speechSynthesisVoiceName = getVoiceForLanguage(language)
 
     return new Promise<void>((resolve, reject) => {
       // Create synthesizer

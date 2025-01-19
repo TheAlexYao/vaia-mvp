@@ -8,6 +8,8 @@ import { ScrollArea } from '../components/ui/scroll-area';
 import { OnboardingModal } from '../components/OnboardingModal';
 import { azureVoiceMap } from '../lib/azureVoiceMap';
 import { CityModal } from '../components/CityModal';
+import { addToHistory, toggleFavorite } from '../lib/historyStore';
+import { HistoryView } from '../components/HistoryView';
 
 interface Phrase {
   original: string;
@@ -59,6 +61,11 @@ const Chat = () => {
   const [currentLangCode, setCurrentLangCode] = useState<string | null>(null);
   const [showCityModal, setShowCityModal] = useState(false);
 
+  const [langCode, setLangCode] = useState<string>('th-TH');
+  const [city, setCity] = useState<string>('Bangkok');
+
+  const [showHistory, setShowHistory] = useState(false);
+
   useEffect(() => {
     const savedLang = localStorage.getItem('vaiaLangCode');
     const savedCity = localStorage.getItem('vaiaCity');
@@ -95,18 +102,25 @@ const Chat = () => {
   const Message = ({ message }: { message: Message }) => {
     const isVai = message.sender === 'vai';
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
 
     const playTTS = async (text: string, language: string) => {
       try {
         setIsPlaying(true);
+        console.log('TTS request:', { text, language }); // Debug log
         const response = await fetch('/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, language })
+          body: JSON.stringify({
+            text,
+            language: language.toLowerCase(), // Normalize language code
+            gender: 'Female'
+          })
         });
         
         if (!response.ok) {
-          throw new Error(`TTS failed: ${response.status}`);
+          const errorText = await response.text();
+          throw new Error(`TTS failed: ${response.status} - ${errorText}`);
         }
         
         const { audioBase64, contentType } = await response.json();
@@ -154,10 +168,29 @@ const Chat = () => {
       </Button>
     );
 
+    const handleFavorite = () => {
+      const updated = toggleFavorite(message.id);
+      if (updated) {
+        setIsFavorite(updated.isFavorite);
+      }
+    };
+
     return (
       <div className={`flex ${isVai ? 'justify-start' : 'justify-end'} mb-2`}>
         {isVai && (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-600 to-purple-500 mr-2 flex-shrink-0" />
+          <div className="flex items-start gap-2">
+            <img 
+              src="/vai-avatar.png"
+              alt="Vai"
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            />
+            <button
+              onClick={handleFavorite}
+              className="text-indigo-400 hover:text-indigo-600 transition-colors"
+            >
+              {isFavorite ? "♥" : "♡"}
+            </button>
+          </div>
         )}
         <div className={`max-w-[80%] ${isVai ? 'mr-12' : 'ml-12'}`}>
           <Card className={`${
@@ -254,72 +287,72 @@ const Chat = () => {
   };
 
   const cleanAIText = (text: string, hasPhrase: boolean) => {
+    // First remove markdown formatting
+    text = text
+      .replace(/\*\*/g, '')  // Remove bold
+      .replace(/\*/g, '')    // Remove italic
+      .replace(/_/g, '')     // Remove underline
+      .replace(/`/g, '')     // Remove code ticks
+      .trim();
+
     if (!hasPhrase) return text;
+    
+    // Then remove redundant phrase sections if we have a structured phrase
     return text
-      .replace(/(?:In|In Thai|In Japanese|In Korean):\s*[^\n]+\n?/g, '')
-      .replace(/(?:Romanized|Pronunciation):\s*[^\n]+\n?/g, '')
-      .replace(/(?:Meaning|Translation|Literally):\s*[^\n]+\n?/g, '')
+      .replace(/(?:In[^:]*):.*(?:\r?\n|\r|$)/g, '')  // Matches "In" followed by any text up to colon
+      .replace(/(?:Romanized|Pronunciation|Transliteration):\s*[^\n]+\n?/g, '')
+      .replace(/(?:Meaning|Translation|Literally|English):\s*[^\n]+\n?/g, '')
       .replace(/\n{2,}/g, '\n')
       .trim();
   };
 
-  const handleSend = async (userMessage: string) => {
-    setIsProcessing(true);
-    setInput('');
-    
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: 'user' as const,
-      content: userMessage
-    };
-    
-    setMessages(prev => [...prev, newMessage]);
-
+  const handleSend = async (message: string) => {
     try {
+      setIsProcessing(true);
+      setInput('');
+      
+      // Add user message first
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        sender: 'user',
+        content: message
+      }]);
+
       const response = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userMessage, 
+        body: JSON.stringify({
+          userMessage: message,
           threadId,
-          langCode: currentLangCode,
-          city: currentLocation 
+          langCode,
+          city
         })
       });
 
       const { aiText, phraseObj, threadId: newThreadId } = await response.json();
-
+      
+      // Update thread ID if new
       if (newThreadId && !threadId) {
         setThreadId(newThreadId);
         localStorage.setItem('vaiaThreadId', newThreadId);
       }
 
+      // Add to history store
+      const historyItem = addToHistory(aiText, phraseObj);
+
+      // Rest of your existing code...
       setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
+        id: historyItem.id,
         sender: 'vai',
-        content: cleanAIText(
-          aiText
-            .replace(/\*\*/g, '')
-            .replace(/_/g, '')
-            .replace(/`/g, '')
-            .trim(),
-          !!phraseObj
-        ),
-        ...(phraseObj && {
+        content: cleanAIText(aiText, !!phraseObj?.phrase),
+        language: phraseObj?.languageCode,
+        ...(phraseObj?.phrase && {
           phrase: {
             original: phraseObj.phrase.original,
             romanized: phraseObj.phrase.romanized,
             meaning: phraseObj.phrase.meaning
-          },
-          language: phraseObj.languageCode
-        }),
-        actions: [
-          { 
-            label: "Practice Now",
-            action: () => console.log("Practice"),
-            primary: true,
           }
-        ]
+        })
       }]);
 
     } catch (error) {
@@ -383,6 +416,8 @@ const Chat = () => {
   };
 
   const handleLanguageSelect = ({ langCode, city }: { langCode: string; city: string }) => {
+    setLangCode(langCode);
+    setCity(city);
     localStorage.setItem('vaiaLangCode', langCode);
     localStorage.setItem('vaiaCity', city);
     setCurrentLangCode(langCode);
@@ -397,30 +432,42 @@ const Chat = () => {
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-indigo-50 to-purple-50">
       <div className="p-4 bg-white border-b">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-700 to-purple-600" />
-          <div>
-            <h1 className="font-medium text-indigo-700">vai</h1>
-            <p className="text-xs text-purple-600">ai language companion</p>
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/vai-avatar.png" alt="Vai" className="w-8 h-8 rounded-full object-cover" />
+            <div>
+              <h1 className="font-medium text-indigo-700">vai</h1>
+              <p className="text-xs text-purple-600">ai language companion</p>
+            </div>
           </div>
+          <button 
+            onClick={() => setShowHistory(!showHistory)}
+            className="text-sm text-indigo-600 hover:text-indigo-800"
+          >
+            {showHistory ? 'Back to Chat' : 'View History'}
+          </button>
         </div>
       </div>
 
       <StatusBar />
 
       <div className="flex-1 p-4 overflow-auto" ref={scrollRef}>
-        <div className="max-w-2xl mx-auto space-y-4">
-          {messages.map(message => (
-            <Message key={message.id} message={message} />
-          ))}
-          {isProcessing && (
-            <div className="flex gap-1 ml-10">
-              <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" />
-              <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce delay-100" />
-              <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce delay-200" />
-            </div>
-          )}
-        </div>
+        {showHistory ? (
+          <HistoryView />
+        ) : (
+          <div className="max-w-2xl mx-auto space-y-4">
+            {messages.map(message => (
+              <Message key={message.id} message={message} />
+            ))}
+            {isProcessing && (
+              <div className="flex gap-1 ml-10">
+                <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" />
+                <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce delay-100" />
+                <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce delay-200" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="p-4 bg-white border-t">
