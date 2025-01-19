@@ -14,29 +14,39 @@ const KEYBOARD_MARKUP = {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('Received webhook:', req.body)
+
   if (req.method !== 'POST') {
+    console.log('Wrong method:', req.method)
     return res.status(405).send('Method Not Allowed')
   }
 
   const update = req.body
   if (!update?.message?.chat?.id) {
+    console.log('Invalid payload:', update)
     return res.status(200).send('Invalid payload')
   }
 
-  const text = update.message.text || ''
-  const message = text === '/start' 
-    ? "Welcome to VAIA! Tap the button below to start chatting:"
-    : "Type /start or tap the button above to open VAIA Chat."
+  try {
+    const text = update.message.text || ''
+    const message = text === '/start' 
+      ? "Welcome to VAIA! Tap the button below to start chatting:"
+      : "Type /start or tap the button above to open VAIA Chat."
 
-  await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: update.message.chat.id,
-      text: message,
-      reply_markup: KEYBOARD_MARKUP
+    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: update.message.chat.id,
+        text: message,
+        reply_markup: KEYBOARD_MARKUP
+      })
     })
-  })
-
-  return res.status(200).send('ok')
+    
+    console.log('Telegram API response:', await response.text())
+    return res.status(200).send('ok')
+  } catch (error) {
+    console.error('Error:', error)
+    return res.status(500).send('Internal error')
+  }
 }
