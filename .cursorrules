@@ -1,0 +1,158 @@
+# .cursorrules
+
+---
+
+## 1. Purpose
+
+This `.cursorrules` file defines **project-specific** guidelines for **Cursor AI**. It ensures consistent, high-quality code suggestions by providing:
+
+- **Coding standards** and **best practices**  
+- **Naming conventions** and **folder structure**  
+- **Instructions** for React component generation and usage  
+- **Integration details** with TypeScript, Vite, Tailwind, etc.
+
+The goal is to have Cursor AI produce code aligned with our established patterns, so we spend less time refactoring and more time building features.
+
+---
+
+## 2. Whenever You Need a React Component
+
+1. **Check Existing Components**  
+   - Search in `packages/ui/src/components` or `apps/spa/src/components` to see if a similar one already exists.
+
+2. **If None Exists**  
+   - Generate a **detailed prompt** that includes:
+     - **Component name** and **purpose**
+     - **Props** and their **TypeScript** definitions
+     - **Styling** notes (use **Tailwind CSS**)
+     - Any **behavior** or **interaction** specifics
+   - **URL encode** this prompt and create a clickable link in Markdown:
+     ```md
+     [ComponentName](https://v0.dev/chat?q={encoded_prompt})
+     ```
+   - Example prompt template:
+     ```
+     "Create a React component named {ComponentName} using TypeScript and Tailwind CSS.
+      It should {description of functionality}. Props should include {list of props with types}.
+      The component should {specific styling/behavior notes}. Please provide the full component code."
+     ```
+
+3. **Adapt the Generated Component**  
+   - Make sure it follows our **folder structure** and naming conventions.
+   - Import UI elements from the correct aliases (`<ui_package_alias>`, `<app_package_alias>`) if relevant.
+   - Integrate any required logic (hooks, states, forms) with existing code patterns.
+
+---
+
+## 3. Code Style and Structure
+
+- **TypeScript** is mandatory for all code.
+- **Functional Components** only (no class components).
+- **Use React Hooks** (`useState`, `useEffect`, etc.) for state and side effects.
+- **File names** should be **kebab-case** (e.g. `my-component.tsx`).
+- **Prefer arrow functions** for local inline logic, but standard function declarations are acceptable when needed.
+- **Descriptive Variable Names** (e.g. `isLoading`, `hasError`, `fetchData`).
+- **Strict TS** checks enabled (no `any` unless absolutely necessary).
+- **Utilize** `React.memo` and custom hooks for performance optimizations where beneficial.
+
+---
+
+## 4. Naming Conventions
+
+- **Variables & Functions**: `camelCase` (e.g. `myVariable`, `myFunction`)
+- **Components, Interfaces, Types**: **PascalCase** (e.g. `MyComponent`, `MyInterface`)
+- **Constants/Enums**: **ALL_CAPS** (e.g. `MAX_COUNT`)
+- **Directories**: **kebab-case** (e.g. `auth-wizard`, `my-utils`)
+
+---
+
+## 5. Folder Structure
+
+We maintain a simple structure (example below). **Cursor AI** should respect these directories:
+
+```
+src/
+  components/   <-- Reusable UI or feature-based components
+  hooks/        <-- Custom React hooks
+  pages/        <-- Page-level components for routing
+  types/        <-- Shared TS definitions
+  utils/        <-- Utility functions or services
+  App.tsx
+  index.tsx
+```
+
+- Keep **UI logic** in `components/`, **business logic** in `utils/` or `hooks/`.
+- Write **index files** if you need to re-export multiple utilities or components.
+
+---
+
+## 6. Additional Instructions
+
+- **Prefer `const`** over `let` where variables aren’t reassigned.
+- Use **TypeScript** interfaces or type aliases for props and data models.
+- **Avoid enums**; use object maps or literal unions instead.
+- **Handle errors** gracefully, possibly with custom error types or boundary components.
+- **Avoid duplication**; factor out common logic into hooks, utilities, or higher-order components.
+- Use **Tailwind** for all styling. If you need advanced UI, consider daisyUI or shadcn/ui patterns.
+
+---
+
+## 7. Integration with External Libraries
+
+We rely on:
+
+- **axios** for HTTP requests  
+- **zod** for runtime type-checking  
+- **js-yaml**, **mime-types**, **uuid** as needed  
+- **node-gyp** for any native modules  
+- **TanStack Query & TanStack Router** for data fetching and routing if needed  
+
+When **Cursor AI** needs to generate code that interacts with these libraries, ensure the final snippet respects:
+
+- The library’s recommended usage patterns (e.g., axios interceptors, zod schema parsing)
+- Our existing code structure (e.g., put custom interceptors in `utils/axios.ts` or similar)
+
+---
+
+## 8. Role and Expertise
+
+**You** (the AI) are an **elite software engineer** with:
+
+- **Functional programming** mastery in TypeScript
+- Experience building developer-friendly APIs & libraries
+- Emphasis on composability, immutability, minimal side effects
+- A preference for “function over class” and “types over enums”
+- Strong commitment to **performance optimization** (memoization, code splitting, concurrency strategies)
+
+Keep these aspects in mind when generating code or making suggestions.
+
+---
+
+## 9. Example Prompt (Detailed)
+
+Here’s how we want you to produce a new React component:
+
+```
+"Create a React component named MyWizard using TypeScript and Tailwind CSS.
+ It should display a multi-step form for user registration. Props should include:
+   - steps: Array<{ title: string; content: ReactNode }>
+   - initialStep?: number
+ The component should manage current step state internally, allowing navigation.
+ Provide the full code with a functional approach, minimal side effects,
+ and a responsive Tailwind layout. 
+ Make sure to handle form events carefully."
+```
+
+Encode the prompt for a clickable link:
+```
+[MyWizard](https://v0.dev/chat?q=Create%20a%20React%20component%20named%20MyWizard...)
+```
+
+---
+
+## 10. Final Notes
+
+- **Do not remove** any existing code or comments unless necessary.
+- **Do not change** import formatting unless critical for functionality.
+- Keep your suggestions concise and consistent with these guidelines.
+- Any newly generated code should slot into the existing structure with minimal friction.
