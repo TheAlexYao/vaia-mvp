@@ -5,6 +5,8 @@ import { Card } from "../components/ui/card"
 import { Button } from '../components/ui/button';
 // @ts-ignore
 import { ScrollArea } from '../components/ui/scroll-area';
+import { OnboardingModal } from '../components/OnboardingModal';
+import { azureVoiceMap } from '../lib/azureVoiceMap';
 
 interface Phrase {
   original: string;
@@ -51,6 +53,17 @@ const Chat = () => {
       ? localStorage.getItem('vaiaThreadId') 
       : null
   );
+
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [currentLangCode, setCurrentLangCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem('vaiaLangCode');
+    if (savedLang) {
+      setCurrentLangCode(savedLang);
+      setShowOnboarding(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -200,7 +213,13 @@ const Chat = () => {
       <div className="max-w-2xl mx-auto flex items-center justify-between text-sm">
         <div className="flex items-center gap-2 text-indigo-700">
           <Globe className="w-4 h-4" />
-          <span>{currentLanguage}</span>
+          <button 
+            onClick={() => setShowOnboarding(true)} 
+            className="hover:text-indigo-800 flex items-center gap-2"
+          >
+            <span>{currentLangCode ? azureVoiceMap[currentLangCode]?.displayName : 'Select Language'}</span>
+            <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full">Change</span>
+          </button>
           <span className="text-gray-300">|</span>
           <span className="text-gray-600">{currentLocation}</span>
         </div>
@@ -332,6 +351,16 @@ const Chat = () => {
     };
     reader.readAsDataURL(file);
   };
+
+  const handleLanguageSelect = (langCode: string) => {
+    localStorage.setItem('vaiaLangCode', langCode);
+    setCurrentLangCode(langCode);
+    setShowOnboarding(false);
+  };
+
+  if (showOnboarding) {
+    return <OnboardingModal onComplete={handleLanguageSelect} />;
+  }
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-indigo-50 to-purple-50">
