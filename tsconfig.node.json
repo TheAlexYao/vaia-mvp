@@ -9,7 +9,8 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "strict": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "noEmit": true
   },
   "include": ["vite.config.ts"]
 }
