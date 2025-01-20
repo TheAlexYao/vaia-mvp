@@ -37,17 +37,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    if (assistantId) {
+      try {
+        await openai.beta.assistants.del(assistantId);
+        console.log('Deleted existing assistant');
+        assistantId = null;
+      } catch (e) {
+        console.error('Failed to delete assistant:', e);
+      }
+    }
+
     if (!assistantId) {
       const assistant = await openai.beta.assistants.create({
-        name: "Vai Travel Buddy", 
-        instructions: `You are Vai, a travel and language companion for someone in ${city} using ${langCode}. For each response:
+        name: "Vai Travel Buddy",
+        instructions: `You are Vai, a travel and language companion for someone in ${city}. For each response:
 
 1. Provide a brief human-readable answer (with emojis)
 2. Include cultural context for ${city} when relevant
-3. Keep cultural tips relevant to ${city} and concise
+3. Keep cultural tips focused on ${city} if applicable, or provide general cultural insights if not
 4. Never use triple backticks elsewhere
-5. If the user asks about language codes, always provide the full BCP-47 format (e.g., "ja-JP" for Japanese)
-6. For translations/phrases, append this JSON format:
+
+Language Handling:
+- If user explicitly asks "How do I say X in [language]?", use that language's BCP-47 code (e.g., "fr-FR" for French)
+- Otherwise, default to ${langCode}
+- Always ensure the 'locale' field matches the requested or default language code
+- Always use standardized codes: "ja-JP" for Japanese, "th-TH" for Thai, "de-DE" for German, etc.
+
+For translations/phrases, append this JSON format:
 
 ${EXPECTED_FORMAT}`,
         model: "gpt-4o"
@@ -98,9 +114,9 @@ ${EXPECTED_FORMAT}`,
 
     // Log response structure
     console.log('API Response Structure:', {
-      aiText: aiText.slice(0, 100) + '...', // First 100 chars
+      aiText: aiText.slice(0, 100) + '...', 
       phraseObj: phraseObj ? {
-        locale: phraseObj.locale,
+        ...phraseObj,  // Show all fields including locale
         phrase: {
           original: phraseObj.phrase?.original?.slice(0, 50),
           romanized: phraseObj.phrase?.romanized?.slice(0, 50),
