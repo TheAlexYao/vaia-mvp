@@ -1,5 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
 
+// Migration function to handle old data format
+const migrateHistoryItem = (item: any): HistoryItem => {
+  if (item.phraseObj?.languageCode) {
+    return {
+      ...item,
+      phraseObj: {
+        ...item.phraseObj,
+        locale: item.phraseObj.languageCode,
+        // @ts-ignore - remove old field
+        languageCode: undefined
+      }
+    };
+  }
+  return item;
+};
+
 export interface HistoryItem {
   id: string;
   timestamp: number;
@@ -8,7 +24,7 @@ export interface HistoryItem {
     original: string;
     romanized: string;
     meaning: string;
-    languageCode: string;
+    locale: string;
     culturalTip?: string;
   };
   isFavorite: boolean;
@@ -18,7 +34,18 @@ const HISTORY_KEY = 'vaiaHistory';
 
 export const getHistory = (): HistoryItem[] => {
   const stored = localStorage.getItem(HISTORY_KEY);
-  return stored ? JSON.parse(stored) : [];
+  if (!stored) return [];
+  
+  // Migrate old data if needed
+  const parsed = JSON.parse(stored);
+  const migrated = parsed.map(migrateHistoryItem);
+  
+  // If any items were migrated, save the migrated data
+  if (migrated.some((item: any) => item.phraseObj?.languageCode)) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(migrated));
+  }
+  
+  return migrated;
 };
 
 export const addToHistory = (content: string, phraseObj?: HistoryItem['phraseObj']): HistoryItem => {

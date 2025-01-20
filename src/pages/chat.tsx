@@ -11,27 +11,25 @@ import { CityModal } from '../components/CityModal';
 import { addToHistory, toggleFavorite } from '../lib/historyStore';
 import { HistoryView } from '../components/HistoryView';
 
-interface Phrase {
-  original: string;
-  romanized: string;
-  meaning: string;
-  audioUrl?: string;
-  saved?: boolean;
-}
-
 interface Message {
   id: string;
   sender: 'user' | 'vai';
   content: string;
   image?: string;
-  phrase?: Phrase;
+  phrase?: {
+    original: string;
+    romanized: string;
+    meaning: string;
+    audioUrl?: string;
+    saved?: boolean;
+  };
+  locale?: string;
   actions?: {
     label: string;
     icon?: string;
     action: () => void;
     primary?: boolean;
   }[];
-  language?: string;
 }
 
 const Chat = () => {
@@ -43,10 +41,6 @@ const Chat = () => {
   
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  // @ts-ignore
-  const [currentLanguage, setCurrentLanguage] = useState('Japanese');
-  // @ts-ignore
-  const [currentLocation, setCurrentLocation] = useState('Tokyo, Japan');
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,12 +60,18 @@ const Chat = () => {
 
   const [showHistory, setShowHistory] = useState(false);
 
+  // @ts-ignore
+  const [isUploading, setIsUploading] = useState(false);
+  // @ts-ignore
+  const [isSending, setIsSending] = useState(false);
+
   useEffect(() => {
     const savedLang = localStorage.getItem('vaiaLangCode');
     const savedCity = localStorage.getItem('vaiaCity');
+    
     if (savedLang) {
       setCurrentLangCode(savedLang);
-      setCurrentLocation(savedCity || '');
+      setCity(savedCity || 'Bangkok');
       setShowOnboarding(false);
     }
   }, []);
@@ -104,16 +104,16 @@ const Chat = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
 
-    const playTTS = async (text: string, language: string) => {
+    const playTTS = async (text: string, locale: string) => {
       try {
         setIsPlaying(true);
-        console.log('TTS request:', { text, language }); // Debug log
+        console.log('TTS request:', { text, locale }); // Debug log
         const response = await fetch('/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text,
-            language: language.toLowerCase(), // Normalize language code
+            language: locale, // Don't lowercase, preserve BCP-47 format
             gender: 'Female'
           })
         });
@@ -150,14 +150,14 @@ const Chat = () => {
       }
     };
 
-    const TTSButton = ({ text, language }: { text: string, language: string }) => (
+    const TTSButton = ({ text, locale }: { text: string, locale: string }) => (
       <Button 
         variant="ghost" 
         size="sm"
         className={`ml-2 rounded-full ${
           isVai ? 'text-white hover:bg-white/10' : 'text-indigo-700 hover:bg-indigo-50'
         }`}
-        onClick={() => playTTS(text, language)}
+        onClick={() => playTTS(text, message.locale || locale)}
         disabled={isPlaying}
       >
         {isPlaying ? (
@@ -213,8 +213,8 @@ const Chat = () => {
                 <p className={`text-sm ${!isVai && 'text-gray-700'}`}>
                   {message.content}
                 </p>
-                {isVai && message.language && !message.phrase && (
-                  <TTSButton text={message.content} language={message.language} />
+                {isVai && message.locale && !message.phrase && (
+                  <TTSButton text={message.content} locale={message.locale} />
                 )}
               </div>
             )}
@@ -223,8 +223,8 @@ const Chat = () => {
               <div className={`${message.content !== message.phrase.meaning ? 'mt-4' : ''} space-y-1.5`}>
                 <div className="flex items-center justify-between">
                   <p className="font-bold text-lg leading-tight">{message.phrase.original}</p>
-                  {message.language && (
-                    <TTSButton text={message.phrase.original} language={message.language} />
+                  {message.locale && (
+                    <TTSButton text={message.phrase.original} locale={message.locale} />
                   )}
                 </div>
                 <p className="text-sm opacity-90">{message.phrase.romanized}</p>
@@ -248,7 +248,7 @@ const Chat = () => {
   const StatusBar = () => {
     const handleCityChange = (newCity: string) => {
       localStorage.setItem('vaiaCity', newCity);
-      setCurrentLocation(newCity);
+      setCity(newCity);
       setShowCityModal(false);
     };
 
@@ -270,7 +270,7 @@ const Chat = () => {
                 onClick={() => setShowCityModal(true)}
                 className="hover:text-indigo-800 flex items-center gap-2"
               >
-                <span className="text-gray-600">{currentLocation || 'Select City'}</span>
+                <span className="text-gray-600">{city || 'Select City'}</span>
                 <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full">Change</span>
               </button>
             </div>
@@ -286,7 +286,9 @@ const Chat = () => {
     );
   };
 
-  const cleanAIText = (text: string, hasPhrase: boolean) => {
+  const cleanAIText = (text: string | undefined | null, hasPhrase: boolean) => {
+    if (!text) return '';
+    
     // First remove markdown formatting
     text = text
       .replace(/\*\*/g, '')  // Remove bold
@@ -311,13 +313,6 @@ const Chat = () => {
       setIsProcessing(true);
       setInput('');
       
-      // Add user message first
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        sender: 'user',
-        content: message
-      }]);
-
       const response = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -329,7 +324,21 @@ const Chat = () => {
         })
       });
 
-      const { aiText, phraseObj, threadId: newThreadId } = await response.json();
+      const data = await response.json();
+      console.log('API Response:', {
+        aiText: data.aiText,
+        phraseObj: data.phraseObj,
+        threadId: data.threadId
+      });
+
+      // Add user message first
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        sender: 'user',
+        content: message
+      }]);
+
+      const { aiText, phraseObj, threadId: newThreadId } = data;
       
       // Update thread ID if new
       if (newThreadId && !threadId) {
@@ -345,7 +354,7 @@ const Chat = () => {
         id: historyItem.id,
         sender: 'vai',
         content: cleanAIText(aiText, !!phraseObj?.phrase),
-        language: phraseObj?.languageCode,
+        locale: phraseObj?.locale,  // Use locale consistently
         ...(phraseObj?.phrase && {
           phrase: {
             original: phraseObj.phrase.original,
@@ -371,48 +380,85 @@ const Chat = () => {
     const file = e.target.files?.[0];
     if (!file || isProcessing) return;
 
-    setIsProcessing(true);
+    try {
+      setIsProcessing(true);
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          sender: 'user',
+          content: '',
+          image: reader.result as string
+        }]);
+
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            id: (Date.now() + 1).toString(),
+            sender: 'vai',
+            content: "yo this is interesting! notice how they use these specific kanji patterns? this is a traditional menu format. here's what it says:",
+            phrase: {
+              original: "特選マグロ",
+              romanized: "tokusen maguro",
+              meaning: "premium tuna (特選 means specially selected)",
+              audioUrl: "/temp.mp3"
+            },
+            actions: [
+              { 
+                label: "Read Full Menu",
+                action: () => console.log("Read"),
+                primary: true
+              },
+              {
+                label: "Save Phrase",
+                action: () => console.log("Save"),
+              },
+              {
+                label: "Learn More",
+                action: () => console.log("Learn"),
+              }
+            ]
+          }]);
+          setIsProcessing(false);
+        }, 1500);
+      };
+      reader.readAsDataURL(file);
+
+      const response = await fetch('/api/analyze-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: reader.result as string,
+          locale: langCode,
+          city: city
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Image analysis failed');
+      }
+
+      const data = await response.json();
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
-        sender: 'user',
-        content: '',
-        image: reader.result as string
+        sender: 'vai',
+        content: data.text || "I've analyzed the image.",
+        locale: langCode,
+        ...(data.phrase && {
+          phrase: data.phrase
+        })
       }]);
 
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          id: (Date.now() + 1).toString(),
-          sender: 'vai',
-          content: "yo this is interesting! notice how they use these specific kanji patterns? this is a traditional menu format. here's what it says:",
-          phrase: {
-            original: "特選マグロ",
-            romanized: "tokusen maguro",
-            meaning: "premium tuna (特選 means specially selected)",
-            audioUrl: "/temp.mp3"
-          },
-          actions: [
-            { 
-              label: "Read Full Menu",
-              action: () => console.log("Read"),
-              primary: true
-            },
-            {
-              label: "Save Phrase",
-              action: () => console.log("Save"),
-            },
-            {
-              label: "Learn More",
-              action: () => console.log("Learn"),
-            }
-          ]
-        }]);
-        setIsProcessing(false);
-      }, 1500);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Image upload error:', error);
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        sender: 'vai',
+        content: "Sorry, I had trouble analyzing that image."
+      }]);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleLanguageSelect = ({ langCode, city }: { langCode: string; city: string }) => {
@@ -421,7 +467,6 @@ const Chat = () => {
     localStorage.setItem('vaiaLangCode', langCode);
     localStorage.setItem('vaiaCity', city);
     setCurrentLangCode(langCode);
-    setCurrentLocation(city);
     setShowOnboarding(false);
   };
 
@@ -483,12 +528,14 @@ const Chat = () => {
 
           {input ? (
             <Button 
-              size="icon"
-              className="rounded-full bg-indigo-700 hover:bg-indigo-800"
+              disabled={isProcessing || isSending || !input.trim()} 
               onClick={() => handleSend(input)}
-              disabled={isProcessing}
             >
-              <Send className="w-4 h-4" />
+              {isSending ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
             </Button>
           ) : (
             <div className="flex gap-2">

@@ -11,7 +11,7 @@ const createAIMessage = (aiText: string, phraseObj: any) => ({
       romanized: phraseObj.phrase.romanized,
       meaning: phraseObj.phrase.meaning
     },
-    language: phraseObj.languageCode
+    language: phraseObj.locale
   })
 })
 
@@ -23,9 +23,9 @@ describe('Chat Logic', () => {
         phrase: {
           original: "สวัสดี",
           romanized: "sawadee",
-          meaning: "hello/goodbye (formal)"
+          meaning: "hello/goodbye (formal)",
+          locale: "th-TH"
         },
-        languageCode: "th-TH",
         culturalTip: "Used throughout the day"
       }
     )
@@ -36,9 +36,9 @@ describe('Chat Logic', () => {
       phrase: {
         original: "สวัสดี",
         romanized: "sawadee",
-        meaning: "hello/goodbye (formal)"
-      },
-      language: "th-TH"
+        meaning: "hello/goodbye (formal)",
+        locale: "th-TH"
+      }
     })
   })
 

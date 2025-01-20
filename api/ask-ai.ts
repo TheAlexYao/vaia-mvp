@@ -7,6 +7,24 @@ const openai = new OpenAI({
 
 let assistantId: string | null = null;
 
+const EXPECTED_FORMAT = `
+Return a JSON object with this EXACT structure:
+{
+  "phrase": {
+    "original": "おはよう",
+    "romanized": "ohayou",
+    "meaning": "good morning"
+  },
+  "locale": "ja-JP",  // REQUIRED: Must be BCP-47 format. ALWAYS use JP for Japanese, TH for Thai, etc.
+  "culturalTip": "In Japan, this greeting is used in the morning"
+}
+
+Examples:
+Japanese -> "ja-JP" (not ja-JA)
+Thai -> "th-TH"
+German -> "de-DE"
+`;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: "Method not allowed" })
@@ -21,27 +39,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!assistantId) {
       const assistant = await openai.beta.assistants.create({
-        name: "VAIA Travel Buddy",
-        instructions: `You are VAIA, a travel and language companion for someone in ${city} using ${langCode}. For each response:
+        name: "Vai Travel Buddy", 
+        instructions: `You are Vai, a travel and language companion for someone in ${city} using ${langCode}. For each response:
 
 1. Provide a brief human-readable answer (with emojis)
-2. Include location-specific cultural context for ${city} when relevant
-3. ONLY if the user asks for a translation or language phrase, append this JSON in triple backticks:
-\`\`\`json
-{
-  "phrase": {
-    "original": "string",
-    "romanized": "string",
-    "meaning": "string"
-  },
-  "languageCode": "string (use BCP-47 format, e.g., 'ja-JP', 'th-TH', 'de-AT')",
-  "culturalTip": "string (specific to ${city})"
-}
-\`\`\`
+2. Include cultural context for ${city} when relevant
+3. Keep cultural tips relevant to ${city} and concise
+4. Never use triple backticks elsewhere
+5. If the user asks about language codes, always provide the full BCP-47 format (e.g., "ja-JP" for Japanese)
+6. For translations/phrases, append this JSON format:
 
-4. If the user did NOT request a translation/phrase, do not output any JSON
-5. Never use triple backticks elsewhere in your response
-6. Keep cultural tips relevant to ${city} and concise`,
+${EXPECTED_FORMAT}`,
         model: "gpt-4o"
       })
       assistantId = assistant.id
@@ -92,7 +100,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('API Response Structure:', {
       aiText: aiText.slice(0, 100) + '...', // First 100 chars
       phraseObj: phraseObj ? {
-        languageCode: phraseObj.languageCode,
+        locale: phraseObj.locale,
         phrase: {
           original: phraseObj.phrase?.original?.slice(0, 50),
           romanized: phraseObj.phrase?.romanized?.slice(0, 50),
@@ -106,10 +114,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       aiText,
       phraseObj: phraseObj ? {
         ...phraseObj,
-        // Ensure languageCode is in correct format (e.g., 'th-TH')
-        languageCode: phraseObj.languageCode?.includes('-') 
-          ? phraseObj.languageCode 
-          : `${phraseObj.languageCode}-${phraseObj.languageCode.toUpperCase()}`
+        locale: phraseObj.locale || null
       } : null,
       threadId: currentThread.id 
     })

@@ -23,7 +23,7 @@ describe('Chat Component', () => {
             romanized: "sawadee",
             meaning: "hello/goodbye (formal)"
           },
-          languageCode: "th-TH",
+          locale: "th-TH",
           culturalTip: "Used throughout the day"
         },
         threadId: "thread_123"
