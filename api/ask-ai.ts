@@ -71,6 +71,9 @@ ${EXPECTED_FORMAT}`,
       assistantId = assistant.id
     }
 
+    // Set a longer timeout for the request
+    res.setTimeout(30000); // 30 seconds
+
     const currentThread = threadId 
       ? { id: threadId }
       : await openai.beta.threads.create()
@@ -84,13 +87,21 @@ ${EXPECTED_FORMAT}`,
       assistant_id: assistantId
     })
 
-    let runStatus = await openai.beta.threads.runs.retrieve(currentThread.id, run.id)
+    // Add timeout to the polling loop
+    let runStatus = await openai.beta.threads.runs.retrieve(currentThread.id, run.id);
+    let attempts = 0;
+    const MAX_ATTEMPTS = 20; // Increase max attempts
+
     while (runStatus.status !== "completed") {
-      if (runStatus.status === "failed") {
-        throw new Error("Assistant run failed")
+      if (attempts >= MAX_ATTEMPTS) {
+        throw new Error("Request timed out");
       }
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      runStatus = await openai.beta.threads.runs.retrieve(currentThread.id, run.id)
+      if (runStatus.status === "failed") {
+        throw new Error("Assistant run failed");
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      runStatus = await openai.beta.threads.runs.retrieve(currentThread.id, run.id);
+      attempts++;
     }
 
     const messages = await openai.beta.threads.messages.list(currentThread.id)
@@ -136,7 +147,13 @@ ${EXPECTED_FORMAT}`,
     })
 
   } catch (error) {
-    console.error("OpenAI API error:", error)
-    return res.status(500).json({ error: "Failed to get AI response" })
+    console.error("API Error:", error);
+    // Send a proper error response
+    return res.status(
+      (error as { status?: number })?.status || 500
+    ).json({ 
+      error: "Failed to get AI response",
+      details: error instanceof Error ? error.message : String(error)
+    });
   }
 } 
