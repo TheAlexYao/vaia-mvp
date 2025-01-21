@@ -144,7 +144,10 @@ export default function PrivyWalletProvider({ children }: { children: ReactNode 
           enabled: isUserCreated,
           getCustomAccessToken: getCustomToken,
           isLoading: false
-        }
+        },
+        embeddedWallets: {
+          showWalletUIs: false
+        },
       }}
     >
       <PrivyWrapper>{children}</PrivyWrapper>
