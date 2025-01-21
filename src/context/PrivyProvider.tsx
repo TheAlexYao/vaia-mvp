@@ -7,29 +7,29 @@ import Cookies from "js-cookie";
 import api from "../utils/api";
 
 const Capx = defineChain({
-  id: Number(import.meta.env.VITE_PUBLIC_CAPX_CHAIN_ID),
-  name: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_NETWORK_NAME,
-  network: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_NETWORK_NAME,
+  id: Number(import.meta.env.VITE_CAPX_CHAIN_ID),
+  name: import.meta.env.VITE_CAPX_CHAIN_NETWORK_NAME,
+  network: import.meta.env.VITE_CAPX_CHAIN_NETWORK_NAME,
   logoUrl: "https://internal.app.capx.fi/favicon.png",
   nativeCurrency: {
     decimals: 18,
     name: "ether",
-    symbol: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_CURRENCY!,
+    symbol: import.meta.env.VITE_CAPX_CHAIN_CURRENCY!,
   },
   rpcUrls: {
     default: {
-      http: [import.meta.env.VITE_PUBLIC_CAPX_CHAIN_RPC_URL!],
-      webSocket: [import.meta.env.VITE_PUBLIC_CAPX_WEB_SOCKET_URL!],
+      http: [import.meta.env.VITE_CAPX_CHAIN_RPC_URL!],
+      webSocket: [import.meta.env.VITE_CAPX_WEB_SOCKET_URL!],
     },
     public: {
-      http: [import.meta.env.VITE_PUBLIC_CAPX_CHAIN_RPC_URL!],
-      webSocket: [import.meta.env.VITE_PUBLIC_CAPX_WEB_SOCKET_URL!],
+      http: [import.meta.env.VITE_CAPX_CHAIN_RPC_URL!],
+      webSocket: [import.meta.env.VITE_CAPX_WEB_SOCKET_URL!],
     },
   },
   blockExplorers: {
     default: {
       name: "Explorer",
-      url: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_EXPLORE_URL!,
+      url: import.meta.env.VITE_CAPX_CHAIN_EXPLORE_URL!,
     },
   },
 });
@@ -53,7 +53,7 @@ const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
         );
         if (!wallet) return false;
         
-        await wallet.switchChain(Number(import.meta.env.VITE_PUBLIC_CAPX_CHAIN_ID));
+        await wallet.switchChain(Number(import.meta.env.VITE_CAPX_CHAIN_ID));
         const providerInstance = new ethers.providers.Web3Provider(await wallet.getEthereumProvider());
         const signer = providerInstance.getSigner();
         const contract = new ethers.Contract(
@@ -128,7 +128,7 @@ export function PrivyProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <BasePrivyProvider
-      appId={import.meta.env.VITE_PUBLIC_PRIVY_APP_ID!}
+      appId={import.meta.env.VITE_PRIVY_APP_ID!}
       config={{
         supportedChains: [Capx],
         defaultChain: Capx,
