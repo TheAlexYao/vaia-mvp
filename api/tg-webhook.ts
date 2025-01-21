@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const text = update.message.text || ''
     const message = text === '/start' 
-      ? "Welcome to VAIA! Tap the button below to start chatting:"
+      ? "Welcome to VAIA! I'm your AI travel companion for language tips, cultural insights, and everything you need on the go. Tap below to start chatting:"
       : "Type /start or tap the button above to open VAIA Chat."
 
     const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
