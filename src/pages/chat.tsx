@@ -10,6 +10,8 @@ import { azureVoiceMap } from '../lib/azureVoiceMap';
 import { CityModal } from '../components/CityModal';
 import { addToHistory, toggleFavorite } from '../lib/historyStore';
 import { HistoryView } from '../components/HistoryView';
+import { usePrivy } from '@privy-io/react-auth';
+import { useUserDetails } from '../context/UserAuthContext';
 
 interface Message {
   id: string;
@@ -42,6 +44,15 @@ interface Message {
 }
 
 const Chat = () => {
+  const { authenticated } = usePrivy();
+  const { isUserCreated } = useUserDetails();
+
+  if (!authenticated || !isUserCreated) {
+    return <div className="flex items-center justify-center h-screen">
+      <p>Please authenticate to continue...</p>
+    </div>;
+  }
+
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = localStorage.getItem('vaiaMessages');
     return saved ? JSON.parse(saved) : [{

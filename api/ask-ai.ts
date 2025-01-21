@@ -115,13 +115,12 @@ async function cancelActiveRuns(threadId: string) {
   ));
 }
 
-// Improved run polling with exponential backoff
+// Improved run polling with comfortable timeouts
 async function waitForRun(threadId: string, runId: string) {
-  const MAX_ATTEMPTS = 40;
-  const BASE_INTERVAL = 500;
-  let attempts = 0;
-
-  while (attempts < MAX_ATTEMPTS) {
+  const MAX_ATTEMPTS = 40;  // 40 attempts * 1s = 40s max
+  const INTERVAL = 1000;    // 1 second between checks
+  
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
     const runStatus = await openai.beta.threads.runs.retrieve(threadId, runId);
     
     switch (runStatus.status) {
@@ -134,10 +133,7 @@ async function waitForRun(threadId: string, runId: string) {
       case 'expired':
         throw new Error('Run expired');
       default:
-        attempts++;
-        // Exponential backoff with max of 3 seconds
-        const delay = Math.min(BASE_INTERVAL * Math.pow(1.1, attempts), 3000);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise(resolve => setTimeout(resolve, INTERVAL));
     }
   }
   throw new Error('Run timed out');
@@ -205,7 +201,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Set longer timeout for request
-    res.setTimeout(30000);
+    res.setTimeout(55000); // 55 seconds to allow for cleanup
 
     // Create or retrieve thread
     const currentThread = threadId 
