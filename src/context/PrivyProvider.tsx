@@ -133,6 +133,7 @@ export default function PrivyWalletProvider({ children }: { children: ReactNode 
       config={{
         supportedChains: [Capx],
         defaultChain: Capx,
+        loginMethods: ["telegram"],
         appearance: {
           theme: "dark",
           accentColor: "#676FFF",
@@ -143,7 +144,7 @@ export default function PrivyWalletProvider({ children }: { children: ReactNode 
           enabled: isUserCreated,
           getCustomAccessToken: getCustomToken,
           isLoading: false
-        },
+        }
       }}
     >
       <PrivyWrapper>{children}</PrivyWrapper>
