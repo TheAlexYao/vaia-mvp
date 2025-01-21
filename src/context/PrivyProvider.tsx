@@ -129,7 +129,7 @@ export default function PrivyWalletProvider({ children }: { children: ReactNode 
 
   return (
     <PrivyProvider
-      appId={import.meta.env.VITE_PUBLIC_PRIVY_APP_ID}
+      appId={import.meta.env.VITE_PRIVY_APP_ID}
       config={{
         supportedChains: [Capx],
         defaultChain: Capx,
