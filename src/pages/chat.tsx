@@ -23,6 +23,15 @@ interface Message {
     audioUrl?: string;
     saved?: boolean;
   };
+  phraseObj?: {
+    phrase: {
+      original: string;
+      romanized: string;
+      meaning: string;
+    };
+    locale: string;
+    culturalTip: string;
+  };
   locale?: string;
   actions?: {
     label: string;
@@ -33,11 +42,14 @@ interface Message {
 }
 
 const Chat = () => {
-  const [messages, setMessages] = useState<Message[]>([{
-    id: '1',
-    sender: 'vai',
-    content: 'Hey I\'m Vai! I can help you learn phrases and learn about cultures around the world. Share a photo of a menuor ask me about any phrase!',
-  }]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem('vaiaMessages');
+    return saved ? JSON.parse(saved) : [{
+      id: '1',
+      sender: 'vai',
+      content: 'Hey I\'m Vai! I can help you learn phrases and learn about cultures around the world. Share a photo of a menu or ask me about any phrase!',
+    }];
+  });
   
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -52,7 +64,6 @@ const Chat = () => {
   );
 
   const [showOnboarding, setShowOnboarding] = useState(true);
-  const [currentLangCode, setCurrentLangCode] = useState<string | null>(null);
   const [showCityModal, setShowCityModal] = useState(false);
 
   const [langCode, setLangCode] = useState<string>('th-TH');
@@ -60,19 +71,46 @@ const Chat = () => {
 
   const [showHistory, setShowHistory] = useState(false);
 
-  // @ts-ignore
-  const [isUploading, setIsUploading] = useState(false);
-  // @ts-ignore
-  const [isSending, setIsSending] = useState(false);
+  // Add assistantId state
+  const [assistantId, setAssistantId] = useState<string | null>(
+    typeof window !== 'undefined' 
+      ? localStorage.getItem('vaiaAssistantId') 
+      : null
+  );
+
+  // Add effect to save messages
+  useEffect(() => {
+    localStorage.setItem('vaiaMessages', JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
     const savedLang = localStorage.getItem('vaiaLangCode');
     const savedCity = localStorage.getItem('vaiaCity');
     
     if (savedLang) {
-      setCurrentLangCode(savedLang);
+      setLangCode(savedLang);
       setCity(savedCity || 'Bangkok');
       setShowOnboarding(false);
+      
+      fetch('/api/ask-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userMessage: '[SYSTEM] Initializing with saved settings',
+          threadId,
+          langCode: savedLang,
+          city: savedCity || 'Bangkok',
+          assistantId
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.assistantId && !assistantId) {
+          setAssistantId(data.assistantId);
+          localStorage.setItem('vaiaAssistantId', data.assistantId);
+        }
+      })
+      .catch(error => console.error('Failed to initialize assistant:', error));
     }
   }, []);
 
@@ -175,6 +213,36 @@ const Chat = () => {
       }
     };
 
+    const cleanText = (text: string | undefined | null, hasPhrase: boolean = false) => {
+      if (!text) return '';
+      
+      // First remove markdown formatting
+      text = text
+        .replace(/\*\*/g, '')  // Remove bold
+        .replace(/\*/g, '')    // Remove italic
+        .replace(/_/g, '')     // Remove underline
+        .replace(/`/g, '')     // Remove code ticks
+        .trim();
+
+      if (!hasPhrase) return text;
+      
+      // Then remove redundant phrase sections if structured
+      return text
+        .replace(/(?:In[^:]*):.*(?:\r?\n|\r|$)/g, '')
+        .replace(/(?:Romanized|Pronunciation|Transliteration):\s*[^\n]+\n?/g, '')
+        .replace(/(?:Meaning|Translation|Literally|English):\s*[^\n]+\n?/g, '')
+        .replace(/\n{2,}/g, '\n')
+        .trim();
+    };
+
+    const content = cleanText(message.content, !!message.phrase);
+    const phrase = message.phrase ? {
+      ...message.phrase,
+      original: cleanText(message.phrase.original),
+      meaning: cleanText(message.phrase.meaning),
+      romanized: message.phrase.romanized ? cleanText(message.phrase.romanized) : undefined
+    } : undefined;
+
     return (
       <div className={`flex ${isVai ? 'justify-start' : 'justify-end'} mb-2`}>
         {isVai && (
@@ -209,26 +277,36 @@ const Chat = () => {
             )}
 
             {(!message.phrase || message.content !== message.phrase.meaning) && (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-4">
                 <p className={`text-sm ${!isVai && 'text-gray-700'}`}>
-                  {message.content}
+                  {content}
                 </p>
                 {isVai && message.locale && !message.phrase && (
-                  <TTSButton text={message.content} locale={message.locale} />
+                  <TTSButton text={content} locale={message.locale} />
                 )}
               </div>
             )}
 
             {message.phrase && (
-              <div className={`${message.content !== message.phrase.meaning ? 'mt-4' : ''} space-y-1.5`}>
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="font-bold text-lg leading-tight">{message.phrase.original}</p>
-                  {message.locale && (
-                    <TTSButton text={message.phrase.original} locale={message.locale} />
+                  <div>
+                    <p className="font-bold text-lg">{phrase?.original}</p>
+                    {phrase?.romanized && <p className="text-sm opacity-90 mt-1">{phrase.romanized}</p>}
+                    {phrase?.meaning && <p className="text-sm opacity-80 mt-1">{phrase.meaning}</p>}
+                  </div>
+                  {message.locale && phrase?.original && (
+                    <TTSButton text={phrase.original} locale={message.locale} />
                   )}
                 </div>
-                <p className="text-sm opacity-90">{message.phrase.romanized}</p>
-                <p className="text-sm opacity-80">{message.phrase.meaning}</p>
+                {message.phraseObj?.culturalTip && (
+                  <div className="mt-4 pt-3 border-t border-white/10">
+                    <p className="text-sm opacity-80">
+                      <span className="mr-2">💡</span>
+                      {message.phraseObj.culturalTip}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -246,10 +324,35 @@ const Chat = () => {
   };
 
   const StatusBar = () => {
-    const handleCityChange = (newCity: string) => {
-      localStorage.setItem('vaiaCity', newCity);
-      setCity(newCity);
-      setShowCityModal(false);
+    const handleCityChange = async (newCity: string) => {
+      try {
+        setCity(newCity);
+        localStorage.setItem('vaiaCity', newCity);
+        
+        // Update assistant with new city
+        const response = await fetch('/api/ask-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userMessage: `[SYSTEM] Switching to ${newCity}`,
+            threadId,
+            langCode,
+            city: newCity,
+            assistantId
+          })
+        });
+        
+        const data = await response.json();
+        console.log('API response:', data); // Debug log
+        if (data.assistantId && !assistantId) {
+          setAssistantId(data.assistantId);
+          localStorage.setItem('vaiaAssistantId', data.assistantId);
+        }
+
+        setShowCityModal(false);
+      } catch (error) {
+        console.error('Failed to update city:', error);
+      }
     };
 
     return (
@@ -262,7 +365,7 @@ const Chat = () => {
                 onClick={() => setShowOnboarding(true)} 
                 className="hover:text-indigo-800 flex items-center gap-2"
               >
-                <span>{currentLangCode ? azureVoiceMap[currentLangCode]?.displayName : 'Select Language'}</span>
+                <span>{azureVoiceMap[langCode]?.displayName || 'Select Language'}</span>
                 <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full">Change</span>
               </button>
               <span className="text-gray-300">|</span>
@@ -286,33 +389,28 @@ const Chat = () => {
     );
   };
 
-  const cleanAIText = (text: string | undefined | null, hasPhrase: boolean) => {
-    if (!text) return '';
-    
-    // First remove markdown formatting
-    text = text
-      .replace(/\*\*/g, '')  // Remove bold
-      .replace(/\*/g, '')    // Remove italic
-      .replace(/_/g, '')     // Remove underline
-      .replace(/`/g, '')     // Remove code ticks
-      .trim();
-
-    if (!hasPhrase) return text;
-    
-    // Then remove redundant phrase sections if we have a structured phrase
-    return text
-      .replace(/(?:In[^:]*):.*(?:\r?\n|\r|$)/g, '')  // Matches "In" followed by any text up to colon
-      .replace(/(?:Romanized|Pronunciation|Transliteration):\s*[^\n]+\n?/g, '')
-      .replace(/(?:Meaning|Translation|Literally|English):\s*[^\n]+\n?/g, '')
-      .replace(/\n{2,}/g, '\n')
-      .trim();
-  };
-
   const handleSend = async (message: string) => {
+    if (isProcessing) return;
+    
     try {
       setIsProcessing(true);
-      setInput('');
+      const messageId = Date.now().toString() + Math.random().toString(36).slice(2);
       
+      // Check for duplicate messages
+      if (messages.some(m => 
+        m.sender === 'user' && 
+        m.content === message && 
+        Date.now() - parseInt(m.id) < 2000
+      )) {
+        return;
+      }
+      
+      setMessages(prev => [...prev, {
+        id: messageId,
+        sender: 'user',
+        content: message
+      }]);
+
       const response = await fetch('/api/ask-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -320,56 +418,52 @@ const Chat = () => {
           userMessage: message,
           threadId,
           langCode,
-          city
+          city,
+          assistantId
         })
       });
 
       const data = await response.json();
-      console.log('API Response:', {
-        aiText: data.aiText,
-        phraseObj: data.phraseObj,
-        threadId: data.threadId
-      });
+      console.log('API response:', data);
 
-      // Add user message first
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        sender: 'user',
-        content: message
-      }]);
-
-      const { aiText, phraseObj, threadId: newThreadId } = data;
-      
-      // Update thread ID if new
-      if (newThreadId && !threadId) {
-        setThreadId(newThreadId);
-        localStorage.setItem('vaiaThreadId', newThreadId);
+      if (data.threadId) {
+        setThreadId(data.threadId);
+        localStorage.setItem('vaiaThreadId', data.threadId);
       }
 
-      // Add to history store
-      const historyItem = addToHistory(aiText, phraseObj);
+      if (data.phraseObj?.phrase) {
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          sender: 'vai',
+          content: data.aiText,
+          phrase: data.phraseObj.phrase,
+          phraseObj: data.phraseObj,
+          locale: data.phraseObj.locale
+        }]);
 
-      // Rest of your existing code...
-      setMessages(prev => [...prev, {
-        id: historyItem.id,
-        sender: 'vai',
-        content: cleanAIText(aiText, !!phraseObj?.phrase),
-        locale: phraseObj?.locale,  // Use locale consistently
-        ...(phraseObj?.phrase && {
-          phrase: {
-            original: phraseObj.phrase.original,
-            romanized: phraseObj.phrase.romanized,
-            meaning: phraseObj.phrase.meaning
-          }
-        })
-      }]);
+        addToHistory(data.aiText, {
+          original: data.phraseObj.phrase.original,
+          romanized: data.phraseObj.phrase.romanized,
+          meaning: data.phraseObj.phrase.meaning,
+          locale: data.phraseObj.locale,
+          culturalTip: data.phraseObj.culturalTip
+        });
+      } else {
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          sender: 'vai',
+          content: data.aiText
+        }]);
+      }
+
+      setInput('');
 
     } catch (error) {
       console.error('Error:', error);
       setMessages(prev => [...prev, {
-        id: Date.now().toString(),
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
         sender: 'vai',
-        content: "Sorry, I had trouble processing that request."
+        content: 'Sorry, I encountered an error. Please try again.'
       }]);
     } finally {
       setIsProcessing(false);
@@ -430,7 +524,9 @@ const Chat = () => {
         body: JSON.stringify({
           image: reader.result as string,
           locale: langCode,
-          city: city
+          city,
+          assistantId,
+          threadId
         })
       });
 
@@ -461,14 +557,50 @@ const Chat = () => {
     }
   };
 
-  const handleLanguageSelect = ({ langCode, city }: { langCode: string; city: string }) => {
-    setLangCode(langCode);
-    setCity(city);
-    localStorage.setItem('vaiaLangCode', langCode);
-    localStorage.setItem('vaiaCity', city);
-    setCurrentLangCode(langCode);
-    setShowOnboarding(false);
+  const handleLanguageSelect = async ({ langCode, city }: { langCode: string; city: string }) => {
+    try {
+      setLangCode(langCode);
+      setCity(city);
+      localStorage.setItem('vaiaLangCode', langCode);
+      localStorage.setItem('vaiaCity', city);
+      
+      const response = await fetch('/api/ask-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userMessage: `[SYSTEM] Switching to ${langCode} for ${city}`,
+          threadId,
+          langCode,
+          city,
+          assistantId
+        })
+      });
+      
+      const data = await response.json();
+      console.log('API response:', data); // Debug log
+      if (data.assistantId && !assistantId) {
+        setAssistantId(data.assistantId);
+        localStorage.setItem('vaiaAssistantId', data.assistantId);
+      }
+
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        sender: 'vai',
+        content: `I've switched to ${azureVoiceMap[langCode]?.displayName || 'the new language'} mode! How can I help you?`
+      }]);
+      
+      setShowOnboarding(false);
+    } catch (error) {
+      console.error('Failed to update assistant:', error);
+    }
   };
+
+  useEffect(() => {
+    console.log('Thread ID changed:', threadId);
+    if (threadId) {
+      localStorage.setItem('vaiaThreadId', threadId);
+    }
+  }, [threadId]);
 
   if (showOnboarding) {
     return <OnboardingModal onComplete={handleLanguageSelect} />;
@@ -528,10 +660,10 @@ const Chat = () => {
 
           {input ? (
             <Button 
-              disabled={isProcessing || isSending || !input.trim()} 
+              disabled={isProcessing || !input.trim()} 
               onClick={() => handleSend(input)}
             >
-              {isSending ? (
+              {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Send className="w-4 h-4" />
