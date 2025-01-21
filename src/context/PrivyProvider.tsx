@@ -116,7 +116,7 @@ const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
   return <>{wallets.length > 0 ? children : <p>Loading...</p>}</>;
 };
 
-export function PrivyProvider({ children }: { children: React.ReactNode }) {
+export default function PrivyWalletProvider({ children }: { children: React.ReactNode }) {
   const { isUserCreated } = useUserDetails();
 
   const getCustomToken = useCallback(async () => {
@@ -128,7 +128,7 @@ export function PrivyProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <BasePrivyProvider
-      appId={import.meta.env.VITE_PRIVY_APP_ID!}
+      appId={import.meta.env.VITE_PRIVY_APP_ID}
       config={{
         supportedChains: [Capx],
         defaultChain: Capx,
@@ -142,7 +142,7 @@ export function PrivyProvider({ children }: { children: React.ReactNode }) {
           enabled: isUserCreated,
           getCustomAccessToken: getCustomToken,
           isLoading: false
-        },
+        }
       }}
     >
       <PrivyWrapper>{children}</PrivyWrapper>
