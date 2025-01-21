@@ -140,7 +140,16 @@ const Chat = () => {
   const Message = ({ message }: { message: Message }) => {
     const isVai = message.sender === 'vai';
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(() => {
+      // Check if message is in favorites when component mounts
+      const history = localStorage.getItem('vaiaHistory');
+      if (!history) return false;
+      
+      const historyItems = JSON.parse(history);
+      return historyItems.some((item: any) => 
+        item.id === message.id && item.isFavorite
+      );
+    });
 
     const playTTS = async (text: string, locale: string) => {
       try {
@@ -207,6 +216,8 @@ const Chat = () => {
     );
 
     const handleFavorite = () => {
+      if (!message.phrase) return; // Only allow favoriting messages with phrases
+      
       const updated = toggleFavorite(message.id);
       if (updated) {
         setIsFavorite(updated.isFavorite);
@@ -252,15 +263,17 @@ const Chat = () => {
               alt="Vai"
               className="w-8 h-8 rounded-full object-cover flex-shrink-0"
             />
+          </div>
+        )}
+        <div className={`max-w-[80%] ${isVai ? 'mr-12' : 'ml-12'} relative`}>
+          {isVai && (
             <button
               onClick={handleFavorite}
-              className="text-indigo-400 hover:text-indigo-600 transition-colors"
+              className="absolute -right-10 top-1 w-8 h-8 flex items-center justify-center text-xl text-indigo-400 hover:text-indigo-600 active:text-indigo-700 transition-colors cursor-pointer touch-manipulation"
             >
               {isFavorite ? "♥" : "♡"}
             </button>
-          </div>
-        )}
-        <div className={`max-w-[80%] ${isVai ? 'mr-12' : 'ml-12'}`}>
+          )}
           <Card className={`${
             isVai 
               ? 'bg-gradient-to-br from-indigo-600 to-purple-500 text-white shadow-lg' 
@@ -432,22 +445,22 @@ const Chat = () => {
       }
 
       if (data.phraseObj?.phrase) {
-        setMessages(prev => [...prev, {
-          id: Date.now().toString(),
-          sender: 'vai',
-          content: data.aiText,
-          phrase: data.phraseObj.phrase,
-          phraseObj: data.phraseObj,
-          locale: data.phraseObj.locale
-        }]);
-
-        addToHistory(data.aiText, {
+        const historyItem = addToHistory(data.aiText, {
           original: data.phraseObj.phrase.original,
           romanized: data.phraseObj.phrase.romanized,
           meaning: data.phraseObj.phrase.meaning,
           locale: data.phraseObj.locale,
           culturalTip: data.phraseObj.culturalTip
         });
+
+        setMessages(prev => [...prev, {
+          id: historyItem.id,
+          sender: 'vai',
+          content: data.aiText,
+          phrase: data.phraseObj.phrase,
+          phraseObj: data.phraseObj,
+          locale: data.phraseObj.locale
+        }]);
       } else {
         setMessages(prev => [...prev, {
           id: Date.now().toString(),

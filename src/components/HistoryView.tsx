@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getHistory, toggleFavorite } from '../lib/historyStore';
 import { Card } from './ui/card';
+import { TTSButton } from './TTSButton';
 
 export const HistoryView = () => {
   const [viewMode, setViewMode] = useState<'history' | 'favorites'>('history');
@@ -43,7 +44,10 @@ export const HistoryView = () => {
                 <p className="text-sm text-gray-600">{item.content}</p>
                 {item.phraseObj && (
                   <div className="mt-2 text-sm">
-                    <p className="font-medium">{item.phraseObj.original}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{item.phraseObj.original}</p>
+                      <TTSButton text={item.phraseObj.original} locale={item.phraseObj.locale} />
+                    </div>
                     <p className="text-gray-500">{item.phraseObj.romanized}</p>
                     <p className="text-gray-600">{item.phraseObj.meaning}</p>
                   </div>

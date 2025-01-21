@@ -16,7 +16,7 @@ const migrateHistoryItem = (item: any): HistoryItem => {
   return item;
 };
 
-export interface HistoryItem {
+type HistoryItem = {
   id: string;
   timestamp: number;
   content: string;
@@ -26,9 +26,10 @@ export interface HistoryItem {
     meaning: string;
     locale: string;
     culturalTip?: string;
+    audioUrl?: string;
   };
-  isFavorite: boolean;
-}
+  isFavorite?: boolean;
+};
 
 const HISTORY_KEY = 'vaiaHistory';
 
