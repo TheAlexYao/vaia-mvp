@@ -1,40 +1,42 @@
+"use client";
 import { defineChain } from "viem";
 import { useCallback, useEffect } from "react";
-import { PrivyProvider as BasePrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
+import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useUserDetails } from "./UserAuthContext";
 import { ethers } from "ethers";
 import Cookies from "js-cookie";
 import api from "../utils/api";
+import type { ReactNode } from 'react';
 
 const Capx = defineChain({
-  id: Number(import.meta.env.VITE_CAPX_CHAIN_ID),
-  name: import.meta.env.VITE_CAPX_CHAIN_NETWORK_NAME,
-  network: import.meta.env.VITE_CAPX_CHAIN_NETWORK_NAME,
+  id: Number(import.meta.env.VITE_PUBLIC_CAPX_CHAIN_ID),
+  name: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_NETWORK_NAME,
+  network: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_NETWORK_NAME,
   logoUrl: "https://internal.app.capx.fi/favicon.png",
   nativeCurrency: {
     decimals: 18,
     name: "ether",
-    symbol: import.meta.env.VITE_CAPX_CHAIN_CURRENCY!,
+    symbol: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_CURRENCY,
   },
   rpcUrls: {
     default: {
-      http: [import.meta.env.VITE_CAPX_CHAIN_RPC_URL!],
-      webSocket: [import.meta.env.VITE_CAPX_WEB_SOCKET_URL!],
+      http: [import.meta.env.VITE_PUBLIC_CAPX_CHAIN_RPC_URL],
+      webSocket: [import.meta.env.VITE_PUBLIC_CAPX_WEB_SOCKET_URL],
     },
     public: {
-      http: [import.meta.env.VITE_CAPX_CHAIN_RPC_URL!],
-      webSocket: [import.meta.env.VITE_CAPX_WEB_SOCKET_URL!],
+      http: [import.meta.env.VITE_PUBLIC_CAPX_CHAIN_RPC_URL],
+      webSocket: [import.meta.env.VITE_PUBLIC_CAPX_WEB_SOCKET_URL],
     },
   },
   blockExplorers: {
     default: {
       name: "Explorer",
-      url: import.meta.env.VITE_CAPX_CHAIN_EXPLORE_URL!,
+      url: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_EXPLORE_URL,
     },
   },
 });
 
-const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
+const PrivyWrapper = ({ children }: { children: ReactNode }) => {
   const { txDetails, userDetails, getUserDetails } = useUserDetails();
   const { wallets } = useWallets();
   const { user, authenticated, createWallet } = usePrivy();
@@ -51,17 +53,14 @@ const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
         const wallet = wallets.find(
           (wallet) => wallet.walletClientType === "privy"
         );
-        if (!wallet) return false;
-        
-        await wallet.switchChain(Number(import.meta.env.VITE_CAPX_CHAIN_ID));
-        const providerInstance = new ethers.providers.Web3Provider(await wallet.getEthereumProvider());
+        await wallet.switchChain(import.meta.env.VITE_PUBLIC_CAPX_CHAIN_ID);
+        let providerInstance = await wallet.getEthersProvider();
         const signer = providerInstance.getSigner();
         const contract = new ethers.Contract(
           txDetails.contract_address,
           txDetails.contract_abi,
           signer
         );
-        
         const txResponse = await signer.sendTransaction({
           to: txDetails.contract_address,
           data: contract.interface.encodeFunctionData("createProfile", [
@@ -71,10 +70,10 @@ const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
           chainId: 10245,
         });
 
-        const receipt = await txResponse.wait();
+        const recipt = await txResponse.wait();
         const endTime = performance.now();
         console.log(endTime - startTime, "XID transaction time");
-        console.log(receipt, "mint tx receipt");
+        console.log(recipt, "mint tx recipt");
         await getUserDetails();
         return true;
       } catch (error) {
@@ -82,14 +81,12 @@ const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     }
-    return false;
   };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    
     (async () => {
-      if (txDetails && (userDetails?.version ?? 0) < 3 && wallets.length > 0) {
+      if (txDetails && userDetails?.version < 3 && wallets.length > 0) {
         const isMinted = await mintXId();
         if (!isMinted) {
           timer = setInterval(async () => {
@@ -97,7 +94,7 @@ const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
             if (isXIdMinted) {
               clearInterval(timer);
             }
-          }, 300000); // 5 minutes
+          }, 300000);
         }
       }
     })();
@@ -107,28 +104,31 @@ const PrivyWrapper = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     (async () => {
-      if (authenticated && !user?.wallet) {
-        await createWallet();
+      if (authenticated) {
+        if (!user?.wallet) {
+          await createWallet();
+        }
       }
     })();
-  }, [authenticated, user?.wallet, createWallet]);
-
+  }, [authenticated]);
   return <>{wallets.length > 0 ? children : <p>Loading...</p>}</>;
 };
 
-export default function PrivyWalletProvider({ children }: { children: React.ReactNode }) {
+export default function PrivyWalletProvider({ children }: { children: ReactNode }) {
   const { isUserCreated } = useUserDetails();
 
   const getCustomToken = useCallback(async () => {
     if (isUserCreated) {
-      return Cookies.get("access_token") || undefined;
+      const idToken = Cookies.get("access_token");
+      return idToken;
+    } else {
+      return null;
     }
-    return undefined;
   }, [isUserCreated]);
 
   return (
-    <BasePrivyProvider
-      appId={import.meta.env.VITE_PRIVY_APP_ID}
+    <PrivyProvider
+      appId={import.meta.env.VITE_PUBLIC_PRIVY_APP_ID}
       config={{
         supportedChains: [Capx],
         defaultChain: Capx,
@@ -139,13 +139,12 @@ export default function PrivyWalletProvider({ children }: { children: React.Reac
           showWalletLoginFirst: false,
         },
         customAuth: {
-          enabled: isUserCreated,
+          isAuthReady: isUserCreated,
           getCustomAccessToken: getCustomToken,
-          isLoading: false
-        }
+        },
       }}
     >
       <PrivyWrapper>{children}</PrivyWrapper>
-    </BasePrivyProvider>
+    </PrivyProvider>
   );
-} 
+}
