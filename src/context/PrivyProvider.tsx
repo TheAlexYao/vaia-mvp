@@ -9,29 +9,29 @@ import api from "../utils/api";
 import type { ReactNode } from 'react';
 
 const Capx = defineChain({
-  id: Number(import.meta.env.VITE_PUBLIC_CAPX_CHAIN_ID),
-  name: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_NETWORK_NAME,
-  network: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_NETWORK_NAME,
+  id: Number(import.meta.env.VITE_CAPX_CHAIN_ID),
+  name: import.meta.env.VITE_CAPX_CHAIN_NETWORK_NAME,
+  network: import.meta.env.VITE_CAPX_CHAIN_NETWORK_NAME,
   logoUrl: "https://internal.app.capx.fi/favicon.png",
   nativeCurrency: {
     decimals: 18,
     name: "ether",
-    symbol: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_CURRENCY,
+    symbol: import.meta.env.VITE_CAPX_CHAIN_CURRENCY,
   },
   rpcUrls: {
     default: {
-      http: [import.meta.env.VITE_PUBLIC_CAPX_CHAIN_RPC_URL],
-      webSocket: [import.meta.env.VITE_PUBLIC_CAPX_WEB_SOCKET_URL],
+      http: [import.meta.env.VITE_CAPX_CHAIN_RPC_URL],
+      webSocket: [import.meta.env.VITE_CAPX_CHAIN_WEB_SOCKET_URL],
     },
     public: {
-      http: [import.meta.env.VITE_PUBLIC_CAPX_CHAIN_RPC_URL],
-      webSocket: [import.meta.env.VITE_PUBLIC_CAPX_WEB_SOCKET_URL],
+      http: [import.meta.env.VITE_CAPX_CHAIN_RPC_URL],
+      webSocket: [import.meta.env.VITE_CAPX_CHAIN_WEB_SOCKET_URL],
     },
   },
   blockExplorers: {
     default: {
       name: "Explorer",
-      url: import.meta.env.VITE_PUBLIC_CAPX_CHAIN_EXPLORE_URL,
+      url: import.meta.env.VITE_CAPX_CHAIN_EXPLORE_URL,
     },
   },
 });
@@ -55,7 +55,7 @@ const PrivyWrapper = ({ children }: { children: ReactNode }) => {
         );
         if (!wallet) return false;
         
-        await wallet.switchChain(import.meta.env.VITE_PUBLIC_CAPX_CHAIN_ID);
+        await wallet.switchChain(import.meta.env.VITE_CAPX_CHAIN_ID);
         const provider = await wallet.getEthereumProvider();
         const ethersProvider = new ethers.providers.Web3Provider(provider);
         const signer = ethersProvider.getSigner();
@@ -70,7 +70,7 @@ const PrivyWrapper = ({ children }: { children: ReactNode }) => {
             txDetails.input_params._profileParams,
             txDetails.input_params._profileData,
           ]),
-          chainId: 10245,
+          chainId: import.meta.env.VITE_CAPX_CHAIN_ID,
         });
 
         const recipt = await txResponse.wait();
