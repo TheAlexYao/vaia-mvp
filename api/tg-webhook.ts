@@ -7,7 +7,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.vaiaworld.ai"
 const KEYBOARD_MARKUP = {
   keyboard: [[{
     text: "Open VAIA Chat",
-    web_app: { url: APP_URL }
+    web_app: { url: `${APP_URL}?startapp=fullscreen` }
   }]],
   resize_keyboard: true,
   one_time_keyboard: true  
