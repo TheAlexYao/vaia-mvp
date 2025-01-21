@@ -53,9 +53,12 @@ const PrivyWrapper = ({ children }: { children: ReactNode }) => {
         const wallet = wallets.find(
           (wallet) => wallet.walletClientType === "privy"
         );
+        if (!wallet) return false;
+        
         await wallet.switchChain(import.meta.env.VITE_PUBLIC_CAPX_CHAIN_ID);
-        let providerInstance = await wallet.getEthersProvider();
-        const signer = providerInstance.getSigner();
+        const provider = await wallet.getEthereumProvider();
+        const ethersProvider = new ethers.providers.Web3Provider(provider);
+        const signer = ethersProvider.getSigner();
         const contract = new ethers.Contract(
           txDetails.contract_address,
           txDetails.contract_abi,
@@ -86,7 +89,7 @@ const PrivyWrapper = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let timer: NodeJS.Timeout;
     (async () => {
-      if (txDetails && userDetails?.version < 3 && wallets.length > 0) {
+      if (txDetails && userDetails?.version && userDetails.version < 3 && wallets.length > 0) {
         const isMinted = await mintXId();
         if (!isMinted) {
           timer = setInterval(async () => {
@@ -117,13 +120,11 @@ const PrivyWrapper = ({ children }: { children: ReactNode }) => {
 export default function PrivyWalletProvider({ children }: { children: ReactNode }) {
   const { isUserCreated } = useUserDetails();
 
-  const getCustomToken = useCallback(async () => {
+  const getCustomToken = useCallback(async (): Promise<string | undefined> => {
     if (isUserCreated) {
-      const idToken = Cookies.get("access_token");
-      return idToken;
-    } else {
-      return null;
+      return Cookies.get("access_token") || undefined;
     }
+    return undefined;
   }, [isUserCreated]);
 
   return (
@@ -139,8 +140,9 @@ export default function PrivyWalletProvider({ children }: { children: ReactNode 
           showWalletLoginFirst: false,
         },
         customAuth: {
-          isAuthReady: isUserCreated,
+          enabled: isUserCreated,
           getCustomAccessToken: getCustomToken,
+          isLoading: false
         },
       }}
     >
